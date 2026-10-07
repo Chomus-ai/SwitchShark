@@ -42,8 +42,13 @@ public class JoyconInputProvider : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool logValues = false;
+    [Tooltip("Logs the name of every Joy-Con button as you press it. Use it to find the right Action Button.")]
+    [SerializeField] private bool logButtonPresses = false;
 
     private Joycon joycon;
+    private bool actionHeldPrev;
+    private bool actionPressed;
+    private bool[] prevButtons;
     private float retryTimer;
 
     private Vector3 prevAccel;
@@ -55,8 +60,8 @@ public class JoyconInputProvider : MonoBehaviour
     /// <summary>True once a matching Joy-Con has been found.</summary>
     public bool Connected => joycon != null;
 
-    public bool ActionPressedThisFrame =>
-        joycon != null && joycon.GetButtonDown(actionButton);
+    /// <summary>True for exactly one frame each time the action button goes down.</summary>
+    public bool ActionPressedThisFrame => actionPressed;
 
     public float Steer
     {
@@ -107,6 +112,13 @@ public class JoyconInputProvider : MonoBehaviour
         prevAccel = accel;
         hasPrevAccel = true;
 
+        // Detect presses from the held state so each press counts exactly once.
+        bool actionHeld = joycon.GetButton(actionButton);
+        actionPressed = actionHeld && !actionHeldPrev;
+        actionHeldPrev = actionHeld;
+
+        if (logButtonPresses) LogButtonPresses();
+
         if (logValues)
         {
             logTimer -= Time.deltaTime;
@@ -117,6 +129,21 @@ public class JoyconInputProvider : MonoBehaviour
                           $"tilt={CurrentTilt:F2} motion={smoothedMotion:F3} " +
                           $"steer={Steer:F2} stillness={Stillness:F2}");
             }
+        }
+    }
+
+    private void LogButtonPresses()
+    {
+        Joycon.Button[] all = (Joycon.Button[])System.Enum.GetValues(typeof(Joycon.Button));
+        if (prevButtons == null || prevButtons.Length != all.Length)
+            prevButtons = new bool[all.Length];
+
+        for (int i = 0; i < all.Length; i++)
+        {
+            bool held = joycon.GetButton(all[i]);
+            if (held && !prevButtons[i])
+                Debug.Log($"[Joycon] Button pressed: {all[i]}");
+            prevButtons[i] = held;
         }
     }
 

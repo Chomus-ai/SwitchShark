@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &297764390 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1044907175037533836, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+  m_PrefabInstance: {fileID: 8446468352944639261}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &387599971
 GameObject:
   m_ObjectHideFlags: 0
@@ -129,6 +134,7 @@ GameObject:
   m_Component:
   - component: {fileID: 387599972}
   - component: {fileID: 387599973}
+  - component: {fileID: 387599974}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -277,6 +283,20 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   debugStartKey: 1
+--- !u!114 &387599974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387599971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cf6b282435d75f4a899c3d81ce9a17a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Edible
+  speciesName: Fish
+  points: 1
 --- !u!1 &583661315
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,7 +433,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 10000
   field of view: 12.9
   orthographic: 0
   orthographic size: 5
@@ -440,8 +460,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 583661315}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.012112479, y: 0.7137551, z: -0.012260125, w: 0.70018333}
-  m_LocalPosition: {x: 121.213684, y: 1.373, z: 382.56}
+  m_LocalRotation: {x: 0.01550497, y: 0.7185677, z: -0.015934957, w: 0.69510156}
+  m_LocalPosition: {x: 123.160126, y: 1.2845364, z: 382.9611}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -498,16 +518,194 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6138970387246308948, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
   m_PrefabInstance: {fileID: 8446468352944639261}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &682837844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297764390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6260541514f934a40abbad25d443667e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SharkEater
+  gameManager: {fileID: 387599973}
+  eatEffectPrefab: {fileID: 0}
+  eatSound: {fileID: 0}
+  eatSoundVolume: 0.8
 --- !u!1 &764873964 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6273853664428796486, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
   m_PrefabInstance: {fileID: 8446468352944639261}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &764873965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 764873964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 449ef5ebbe24720439ec31d15f7b6f3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineVolumeSettings
+  Weight: 1
+  FocusTracking: 0
+  FocusTarget: {fileID: 0}
+  FocusOffset: 0
+  Profile: {fileID: 11400000, guid: ee642c3be4074e244b2767ee43639f69, type: 2}
+--- !u!1 &992938893
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 992938896}
+  - component: {fileID: 992938895}
+  - component: {fileID: 992938894}
+  m_Layer: 0
+  m_Name: Skybox_mesh
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!23 &992938894
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 992938893}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 5129501782143008232, guid: e5a8d5e136788404eb91fffa90225c8a, type: 3}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &992938895
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 992938893}
+  m_Mesh: {fileID: 3816829500182822952, guid: e5a8d5e136788404eb91fffa90225c8a, type: 3}
+--- !u!4 &992938896
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 992938893}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 500, y: 400, z: 500}
+  m_LocalScale: {x: 7.11, y: 7.11, z: 7.11}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1230460428 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2264585789136762474, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
   m_PrefabInstance: {fileID: 8446468352944639261}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1230460429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230460428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 449ef5ebbe24720439ec31d15f7b6f3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineVolumeSettings
+  Weight: 1
+  FocusTracking: 0
+  FocusTarget: {fileID: 0}
+  FocusOffset: 0
+  Profile: {fileID: 11400000, guid: ee642c3be4074e244b2767ee43639f69, type: 2}
+--- !u!1 &1561273286 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7135439779961723984, guid: d5b2a551728844c479052aa898499ab8, type: 3}
+  m_PrefabInstance: {fileID: 9080643587784469794}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1561273288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561273286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd089b2e6d24d0b4b858ad798e118040, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FishSpawner
+  gameManager: {fileID: 387599973}
+  shark: {fileID: 682837841}
+  fishParent: {fileID: 0}
+  species:
+  - name: Squid
+    prefab: {fileID: 8234533228221616491, guid: 75eea2b03a9457c44a8e6a998639db70, type: 3}
+    spawnWeight: 1
+    scaleRange: {x: 5, y: 10}
+  - name: Prawn
+    prefab: {fileID: 7474584736604685566, guid: ac64c74ab02a2f14798099b19509978d, type: 3}
+    spawnWeight: 4
+    scaleRange: {x: 3, y: 5}
+  initialBurst: 6
+  spawnInterval: 1.5
+  maxAlive: 15
+  distanceAhead: {x: 20, y: 35}
+  lateralRange: 12
+  verticalJitter: 1
+  minSpacing: 3
+  despawnBehindDistance: 15
+  despawnMaxDistance: 60
 --- !u!1 &1998268508
 GameObject:
   m_ObjectHideFlags: 0
@@ -705,6 +903,46 @@ PrefabInstance:
       propertyPath: m_Name
       value: LanternShark
       objectReference: {fileID: 0}
+    - target: {fileID: 1132343943906854123, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: Lens.FarClipPlane
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -16.979874
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.33653635
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.6611023
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.69510156
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.01550497
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7185677
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.015934957
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 12.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361569700194135090, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 80.1
+      objectReference: {fileID: 0}
     - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
       propertyPath: gameManager
       value: 
@@ -749,10 +987,23 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6599119431473104006, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: Lens.FarClipPlane
+      value: 10000
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1044907175037533836, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 682837844}
+    - targetCorrespondingSourceObject: {fileID: 2264585789136762474, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1230460429}
+    - targetCorrespondingSourceObject: {fileID: 6273853664428796486, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 764873965}
   m_SourcePrefab: {fileID: 100100000, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
 --- !u!1001 &9080643587784469794
 PrefabInstance:
@@ -809,7 +1060,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7135439779961723984, guid: d5b2a551728844c479052aa898499ab8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1561273288}
   m_SourcePrefab: {fileID: 100100000, guid: d5b2a551728844c479052aa898499ab8, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -822,3 +1076,4 @@ SceneRoots:
   - {fileID: 387599972}
   - {fileID: 583661320}
   - {fileID: 625042026}
+  - {fileID: 992938896}
