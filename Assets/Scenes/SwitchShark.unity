@@ -173,7 +173,7 @@ MonoBehaviour:
   minHeight: 0
   maxHeight: 100
   seabedTolerance: 0.1
-  eatDuration: 60
+  eatDuration: 25
   onEnterIntro:
     m_PersistentCalls:
       m_Calls:
