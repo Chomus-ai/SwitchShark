@@ -3,15 +3,14 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-public enum GameState { Intro, Rise, Eat, Return }
+public enum GameState { Intro, Rise, Surface }
 
 /// <summary>
-/// Drives the game loop: Intro -> Rise -> Eat -> Return -> Intro.
+/// Drives the game loop: Intro -> Rise -> Surface -> Intro.
 ///
 /// The manager is passive: it reads values and decides WHEN to change state.
-///   Rise   : shark height     >= maxHeight
-///   Eat    : internal timer   <= 0
-///   Return : shark height     <= minHeight + seabedTolerance
+///   Rise    : shark height >= maxHeight - arriveTolerance
+///   Surface : short timer (the "you made it" moment), then back to Intro
 ///
 /// What happens on each change (cameras, UI, enabling controllers) is wired up
 /// through the UnityEvents below or by subscribing to StateChanged.
@@ -23,21 +22,21 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform shark;
 
     [Header("Height range (world Y)")]
-    [Tooltip("Seabed. Return ends when the shark gets back down here.")]
+    [Tooltip("Seabed height. Used for the depth meter (0 at this height).")]
     [SerializeField] private float minHeight = 0f;
     [Tooltip("Rise ends when the shark reaches this height.")]
     [SerializeField] private float maxHeight = 100f;
-    [Tooltip("How close to minHeight counts as 'reached the seabed'.")]
-    [SerializeField] private float seabedTolerance = 0.1f;
+    [Tooltip("The shark approaches its target height smoothly, so count it as arrived when this close.")]
+    [SerializeField] private float arriveTolerance = 0.25f;
 
-    [Header("Eat segment")]
-    [SerializeField] private float eatDuration = 45f;
+    [Header("Surface segment")]
+    [Tooltip("Seconds spent on the arrival moment before returning to the Intro.")]
+    [SerializeField] private float surfaceDuration = 8f;
 
     [Header("State enter events (hook up cameras, UI, controllers here)")]
     [SerializeField] private UnityEvent onEnterIntro;
     [SerializeField] private UnityEvent onEnterRise;
-    [SerializeField] private UnityEvent onEnterEat;
-    [SerializeField] private UnityEvent onEnterReturn;
+    [SerializeField] private UnityEvent onEnterSurface;
 
     [Header("Development")]
     [Tooltip("Keyboard fallback for starting the game from the Intro screen.")]
@@ -48,18 +47,17 @@ public class GameManager : MonoBehaviour
 
     public GameState CurrentState { get; private set; } = GameState.Intro;
 
-    /// <summary>Shark height from 0 (seabed) to 1 (Rise target). Use this for the depth meter.</summary>
+    /// <summary>Shark height from 0 (seabed) to 1 (target height). Use this for the depth meter.</summary>
     public float NormalizedHeight => Mathf.InverseLerp(minHeight, maxHeight, CurrentHeight);
 
-    /// <summary>Seconds left in the Eat segment (only meaningful during Eat).</summary>
-    public float TimeRemaining => eatTimer;
+    /// <summary>Seconds left in the Surface segment (only meaningful during Surface).</summary>
+    public float SurfaceTimeRemaining => surfaceTimer;
 
-    // If your Segment 1 controller keeps its own height value, read that here
-    // instead (e.g. shark.GetComponent<SharkController>().Height) so there is
-    // only ever one source of truth for the shark's height.
+    // If your shark controller keeps its own height value, read that here instead
+    // so there is only ever one source of truth for the shark's height.
     private float CurrentHeight => shark.position.y;
 
-    private float eatTimer;
+    private float surfaceTimer;
 
     private void Awake()
     {
@@ -86,24 +84,19 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.Rise:
-                if (CurrentHeight >= maxHeight)
-                    ChangeState(GameState.Eat);
+                if (CurrentHeight >= maxHeight - arriveTolerance)
+                    ChangeState(GameState.Surface);
                 break;
 
-            case GameState.Eat:
-                eatTimer = Mathf.Max(0f, eatTimer - Time.deltaTime);
-                if (eatTimer <= 0f)
-                    ChangeState(GameState.Return);
-                break;
-
-            case GameState.Return:
-                if (CurrentHeight <= minHeight + seabedTolerance)
+            case GameState.Surface:
+                surfaceTimer = Mathf.Max(0f, surfaceTimer - Time.deltaTime);
+                if (surfaceTimer <= 0f)
                     ChangeState(GameState.Intro);
                 break;
         }
     }
 
-    // ---------- Public API (call from the input layer / Wiimote script) ----------
+    // ---------- Public API (call from the input layer) ----------
 
     /// <summary>Called when the player presses the start button on the Intro screen.</summary>
     public void RequestStart()
@@ -146,13 +139,9 @@ public class GameManager : MonoBehaviour
                 onEnterRise?.Invoke();
                 break;
 
-            case GameState.Eat:
-                eatTimer = eatDuration;
-                onEnterEat?.Invoke();
-                break;
-
-            case GameState.Return:
-                onEnterReturn?.Invoke();
+            case GameState.Surface:
+                surfaceTimer = surfaceDuration;
+                onEnterSurface?.Invoke();
                 break;
         }
     }
