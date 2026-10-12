@@ -5,9 +5,9 @@ using UnityEngine;
 /// <summary>
 /// Put this on the shark's ROOT object (the one with the Rigidbody).
 /// When the shark's trigger collider (e.g. a "Mouth" child) touches a fish that has
-/// an Edible component during the Eat state, the fish is eaten.
-/// Stats reset each time Eat begins and stay readable afterwards (e.g. for the
-/// summary shown during Return).
+/// an Edible component during the Rise state, the fish is eaten.
+/// Stats reset each time Rise begins and stay readable afterwards (e.g. for the
+/// summary shown during Surface).
 /// </summary>
 public class SharkEater : MonoBehaviour
 {
@@ -48,7 +48,7 @@ public class SharkEater : MonoBehaviour
 
     private void HandleStateChanged(GameState previous, GameState next)
     {
-        if (next == GameState.Eat)
+        if (next == GameState.Rise)
             ResetStats();
     }
 
@@ -61,7 +61,7 @@ public class SharkEater : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (gameManager == null || gameManager.CurrentState != GameState.Eat) return;
+        if (gameManager == null || gameManager.CurrentState != GameState.Rise) return;
 
         // The collider may be on a child of the fish, so look up the hierarchy.
         Edible edible = other.GetComponentInParent<Edible>();
