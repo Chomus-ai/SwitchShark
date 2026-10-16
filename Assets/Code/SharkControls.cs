@@ -21,6 +21,9 @@ public class SharkRise : MonoBehaviour
     [Header("Rise (tap button / Space)")]
     [Tooltip("How much each press raises the shark's target height.")]
     [SerializeField] private float riseDistancePerPress = 2f;
+    [Tooltip("Debounce: minimum seconds between presses that count. Presses sooner than this after " +
+             "the last counted one are ignored, so spamming the button can't raise the shark faster. 0 = off.")]
+    [SerializeField] private float minPressInterval = 0.25f;
     [Tooltip("Target height lost per second when the player isn't pressing. 0 = never sinks.")]
     [SerializeField] private float idleSinkSpeed = 0.3f;
     [Tooltip("Higher = slower, smoother climb toward the target height.")]
@@ -53,6 +56,7 @@ public class SharkRise : MonoBehaviour
 
     private float targetHeight;
     private float heightVelocity;
+    private float lastAcceptedPressTime = float.NegativeInfinity;
     private float smoothedTurn;
     private float bank;
     private float pitch;
@@ -96,6 +100,7 @@ public class SharkRise : MonoBehaviour
             targetHeight = transform.position.y;
             heightVelocity = 0f;
             smoothedTurn = 0f;
+            lastAcceptedPressTime = float.NegativeInfinity;
 
             // Whatever way the player is holding the Joy-Con now counts as "straight ahead".
             if (joycon != null) joycon.CalibrateTilt();
@@ -144,8 +149,12 @@ public class SharkRise : MonoBehaviour
         bool tap = (keyboard != null && keyboard.spaceKey.wasPressedThisFrame)
                    || (JoyconReady && joycon.ActionPressedThisFrame);
 
-        if (tap)
+        // Debounce: ignore presses that come too soon after the last counted one.
+        if (tap && Time.time - lastAcceptedPressTime >= minPressInterval)
+        {
             targetHeight += riseDistancePerPress;
+            lastAcceptedPressTime = Time.time;
+        }
 
         targetHeight = Mathf.Max(seabedY, targetHeight - idleSinkSpeed * dt);
 

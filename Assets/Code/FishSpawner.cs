@@ -99,7 +99,7 @@ public class FishSpawner : MonoBehaviour
                     createFunc: () => Instantiate(prefabReference, fishParent),
                     actionOnGet: (obj) => obj.SetActive(true),
                     actionOnRelease: (obj) => obj.SetActive(false),
-                    actionOnDestroy: (obj) => Destroy(obj),
+                    actionOnDestroy: (obj) => DestroyImmediate(obj),
                     collectionCheck: false,
                     defaultCapacity: maxAlive,
                     maxSize: 50
@@ -311,7 +311,7 @@ public class FishSpawner : MonoBehaviour
         else
         {
         // Fallback in case a foreign object sneaked into the collection tracker
-            Destroy(fish);
+            DestroyImmediate(fish);
         }
     }
     private Vector3 FlatForward()
