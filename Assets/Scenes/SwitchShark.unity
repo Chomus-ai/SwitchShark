@@ -504,7 +504,7 @@ MonoBehaviour:
     DefaultMode: 2
   DefaultBlend:
     Style: 1
-    Time: 2
+    Time: 1.5
     CustomCurve:
       serializedVersion: 2
       m_Curve: []
@@ -623,8 +623,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 583661315}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0029879212, y: 0.21063492, z: -0.0006438075, w: 0.97756004}
-  m_LocalPosition: {x: 139.97614, y: 0.978, z: 381.9335}
+  m_LocalRotation: {x: 0.05370478, y: 0.3307982, z: -0.018859614, w: 0.9419834}
+  m_LocalPosition: {x: 139.90434, y: 1.018, z: 382.0038}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -746,6 +746,12 @@ MonoBehaviour:
   groundClearance: 0.2
   groundProbeHeight: 20
   groundProbeDepth: 20
+  enableAvoidance: 1
+  lookAhead: 4
+  probeAngle: 35
+  avoidTurnRate: 45
+  avoidSmoothing: 5
+  rotateShark: 1
   gameManager: {fileID: 0}
 --- !u!1 &978294065
 GameObject:
@@ -1146,8 +1152,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1295499398}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.008317338, y: 0.97109914, z: -0.03395182, w: 0.23610303}
-  m_LocalPosition: {x: 139.43575, y: 0.97978795, z: 382.7682}
+  m_LocalRotation: {x: 0.000994747, y: 0.9193777, z: -0.0021753255, w: 0.3933688}
+  m_LocalPosition: {x: 139.86824, y: 0.9347629, z: 382.5552}
   m_LocalScale: {x: 0.049999997, y: 0.049999997, z: 0.049999997}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1223,8 +1229,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1473772018}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0029879205, y: 0.21063487, z: -0.00064380723, w: 0.97756004}
-  m_LocalPosition: {x: 139.97614, y: 0.978, z: 381.9335}
+  m_LocalRotation: {x: 0.05370478, y: 0.33079818, z: -0.018859616, w: 0.9419834}
+  m_LocalPosition: {x: 139.90434, y: 1.018, z: 382.0038}
   m_LocalScale: {x: 0.049999997, y: 0.049999997, z: 0.049999997}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1248,7 +1254,7 @@ MonoBehaviour:
     AngularDampingMode: 0
     RotationDamping: {x: 0.5, y: 0.5, z: 0.5}
     QuaternionDamping: 1
-  FollowOffset: {x: 0.1, y: 0.03, z: -0.39}
+  FollowOffset: {x: 0, y: 0.07, z: -0.38}
 --- !u!114 &1473772022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1376,8 +1382,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
-  m_Color: {r: 0.5254902, g: 0.9321524, b: 1, a: 1}
-  m_Intensity: 3.57
+  m_Color: {r: 0.23684435, g: 0.35560104, b: 0.832884, a: 1}
+  m_Intensity: 0.99
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1593,6 +1599,14 @@ PrefabInstance:
     - target: {fileID: 3558777040857630776, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: maxBank
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: maxPitch
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
       propertyPath: turnSpeed
