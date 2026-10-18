@@ -170,12 +170,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SharkRise
   gameManager: {fileID: 0}
   joycon: {fileID: 8095039948629877392}
+  visual: {fileID: 0}
   riseDistancePerPress: 2
+  minPressInterval: 0.25
   idleSinkSpeed: 0.5
+  riseSmoothTime: 0.6
   forwardSpeed: 5
   turnSpeed: 90
-  sinkSpeed: 8
-  resetPoseOnReturn: 1
+  turnSmoothing: 0.15
+  maxBank: 25
+  maxPitch: 15
+  riseSpeedForMaxPitch: 3
+  visualSmoothing: 6
+  resetPoseOnIntro: 1
 --- !u!114 &8095039948629877392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,7 +459,7 @@ MonoBehaviour:
   Lens:
     FieldOfView: 12.9
     OrthographicSize: 5
-    NearClipPlane: 0.3
+    NearClipPlane: 0.01
     FarClipPlane: 1000
     Dutch: 0
     ModeOverride: 0
@@ -977,7 +984,7 @@ MonoBehaviour:
   Lens:
     FieldOfView: 91.5
     OrthographicSize: 5
-    NearClipPlane: 0.3
+    NearClipPlane: 0.01
     FarClipPlane: 1000
     Dutch: 0
     ModeOverride: 0
