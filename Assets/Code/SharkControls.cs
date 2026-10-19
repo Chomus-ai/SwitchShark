@@ -31,6 +31,8 @@ public class SharkRise : MonoBehaviour
 
     [Header("Forward and steering (tilt / A, D)")]
     [SerializeField] private float forwardSpeed = 5f;
+    [SerializeField] private float boostSpeed = 10f;
+    [SerializeField] private float normalSpeed = 5f;
     [Tooltip("Degrees per second at full tilt.")]
     [SerializeField] private float turnSpeed = 60f;
     [Tooltip("Seconds of smoothing on steering. Hides jitter from pressing the button while tilting.")]
@@ -145,8 +147,8 @@ public class SharkRise : MonoBehaviour
     {
         float dt = Time.deltaTime;
 
-        // --- Rising: each press raises the target; the shark eases up toward it. ---
-        bool tap = (keyboard != null && keyboard.spaceKey.wasPressedThisFrame)
+       /*  // --- Rising: each press raises the target; the shark eases up toward it. ---
+        bool tap = (keyboard != null && keyboard.sKey.wasPressedThisFrame)
                    || (JoyconReady && joycon.ActionPressedThisFrame);
 
         // Debounce: ignore presses that come too soon after the last counted one.
@@ -154,7 +156,24 @@ public class SharkRise : MonoBehaviour
         {
             targetHeight += riseDistancePerPress;
             lastAcceptedPressTime = Time.time;
+        } */
+
+        // --- Boost: each press boosts the target; the shark rushes forward. ---
+        bool squeeze = (keyboard != null && keyboard.spaceKey.wasPressedThisFrame)
+                   || (JoyconReady && joycon.ActionPressedThisFrame);
+
+        // Debounce: ignore presses that come too soon after the last counted one.
+        if (squeeze && Time.time - lastAcceptedPressTime >= minPressInterval)
+        {
+            forwardSpeed = boostSpeed; // boost forward speed
+            lastAcceptedPressTime = Time.time;
         }
+        if (Time.time - lastAcceptedPressTime >= 1.5f && forwardSpeed != normalSpeed) // reset to normal speed after 1.5 seconds
+        {
+            forwardSpeed = normalSpeed;
+        }
+
+        
 
         targetHeight = Mathf.Max(seabedY, targetHeight - idleSinkSpeed * dt);
 
@@ -167,6 +186,7 @@ public class SharkRise : MonoBehaviour
         {
             if (keyboard.dKey.isPressed) turnInput += 1f;
             if (keyboard.aKey.isPressed) turnInput -= 1f;
+            if (keyboard.sKey.isPressed) targetHeight += riseDistancePerPress;
         }
         if (JoyconReady)
             turnInput += joycon.Steer;
