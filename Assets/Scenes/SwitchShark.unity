@@ -758,6 +758,17 @@ MonoBehaviour:
   avoidSmoothing: 5
   rotateShark: 1
   gameManager: {fileID: 0}
+--- !u!114 &682837854 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+  m_PrefabInstance: {fileID: 8446468352944639261}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297764390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87d1702d80a7cb14291261ca08b8f46d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SharkRise
 --- !u!1 &952540654
 GameObject:
   m_ObjectHideFlags: 0
@@ -1118,7 +1129,7 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 300
+    maxNumParticles: 600
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 1
     rotation3D: 0
@@ -3569,7 +3580,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3099726741672418996, guid: 54f66a8133e88b94dbe314cc4c13414e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1596094821}
   m_SourcePrefab: {fileID: 100100000, guid: 54f66a8133e88b94dbe314cc4c13414e, type: 3}
 --- !u!1 &1473772018
 GameObject:
@@ -3736,6 +3750,35 @@ MonoBehaviour:
   terrainBufferHeight: 1.5
   despawnBehindDistance: 30
   despawnMaxDistance: 200
+--- !u!1 &1596094819 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3099726741672418996, guid: 54f66a8133e88b94dbe314cc4c13414e, type: 3}
+  m_PrefabInstance: {fileID: 1443137268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1596094821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596094819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b85baee45d71bff47a1fbf07291d2525, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SharkSwimAnimator
+  shark: {fileID: 682837854}
+  animator: {fileID: 1596094822}
+  restingAnimSpeed: 0.1
+  cruiseAnimSpeed: 2
+  referenceSpeed: 5
+  maxAnimSpeed: 15
+  smoothing: 0.2
+--- !u!95 &1596094822 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 8552209748733484660, guid: 54f66a8133e88b94dbe314cc4c13414e, type: 3}
+  m_PrefabInstance: {fileID: 1443137268}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1998268508
 GameObject:
   m_ObjectHideFlags: 0
@@ -4033,8 +4076,20 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: boostCooldown
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: boostDuration
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
       propertyPath: idleSinkSpeed
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: boostSpeedBonus
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
       propertyPath: minPressInterval

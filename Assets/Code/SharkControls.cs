@@ -4,9 +4,12 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// Shark controller for the rising-only game. Behaviour depends on GameManager's state:
 ///   Intro   : press the Joy-Con action button to start (Space also works via GameManager)
-///   Rise    : the shark swims forward automatically. Tilt the Joy-Con (or A / D) to turn.
-///             Each button press (or Space) raises the shark; it sinks slowly if you stop.
-///   Surface : the shark glides forward slowly, no input.
+///   Rise    : the shark swims forward automatically along its nose direction.
+///             Tilt the Joy-Con left/right (or A / D) to turn.
+///             Tilt it up/down (or W / S) to pitch the nose up/down. Because the shark swims
+///             along its nose, pitching up makes it climb a little.
+///             Pressing the button (or Space) gives a short burst of speed.
+///   Surface : the shark levels out and glides forward slowly, no input.
 /// Joy-Con input is used when a Joy-Con is connected; the keyboard always works too.
 /// </summary>
 public class SharkRise : MonoBehaviour
@@ -15,56 +18,63 @@ public class SharkRise : MonoBehaviour
     [Tooltip("Optional. Leave empty to use the keyboard only.")]
     [SerializeField] private JoyconInputProvider joycon;
     [Tooltip("Optional. A child object holding the shark MODEL (with identity rotation). " +
-             "It is pitched up while rising and banked into turns. Leave empty to skip.")]
+             "It is pitched and banked to match the movement. Leave empty to skip.")]
     [SerializeField] private Transform visual;
 
-    [Header("Rise (tap button / Space)")]
-    [Tooltip("How much each press raises the shark's target height.")]
-    [SerializeField] private float riseDistancePerPress = 2f;
-    [Tooltip("Debounce: minimum seconds between presses that count. Presses sooner than this after " +
-             "the last counted one are ignored, so spamming the button can't raise the shark faster. 0 = off.")]
-    [SerializeField] private float minPressInterval = 0.25f;
-    [Tooltip("Target height lost per second when the player isn't pressing. 0 = never sinks.")]
-    [SerializeField] private float idleSinkSpeed = 0.3f;
-    [Tooltip("Higher = slower, smoother climb toward the target height.")]
-    [SerializeField] private float riseSmoothTime = 0.6f;
-
-    [Header("Forward and steering (tilt / A, D)")]
+    [Header("Forward movement")]
     [SerializeField] private float forwardSpeed = 5f;
-    [SerializeField] private float boostSpeed = 10f;
-    [SerializeField] private float normalSpeed = 5f;
+
+    [Header("Steering (tilt left/right, or A / D)")]
     [Tooltip("Degrees per second at full tilt.")]
     [SerializeField] private float turnSpeed = 60f;
     [Tooltip("Seconds of smoothing on steering. Hides jitter from pressing the button while tilting.")]
     [SerializeField] private float turnSmoothing = 0.15f;
 
+    [Header("Pitch (tilt up/down, or W / S)")]
+    [Tooltip("Nose-up angle at full upward tilt. The shark swims along its nose, so climb speed is " +
+             "roughly speed x sin(angle).")]
+    [SerializeField] private float maxClimbAngle = 20f;
+    [Tooltip("Nose-down angle at full downward tilt.")]
+    [SerializeField] private float maxDiveAngle = 15f;
+    [Tooltip("Seconds of smoothing on the pitch angle.")]
+    [SerializeField] private float pitchSmoothing = 0.25f;
+
+    [Header("Boost (button press / Space)")]
+    [Tooltip("Extra speed at the start of a burst. It fades out over Boost Duration.")]
+    [SerializeField] private float boostSpeedBonus = 4f;
+    [SerializeField] private float boostDuration = 0.6f;
+    [Tooltip("Debounce: minimum seconds between bursts. Presses sooner than this are ignored, " +
+             "so spamming the button can't keep the shark boosted.")]
+    [SerializeField] private float boostCooldown = 0.8f;
+
     [Header("Visual flair (only used if 'Visual' is assigned)")]
     [Tooltip("Degrees of roll at full turn. Flip the sign if it leans the wrong way.")]
     [SerializeField] private float maxBank = 25f;
-    [Tooltip("Degrees of nose-up at the climb speed below.")]
-    [SerializeField] private float maxPitch = 15f;
-    [Tooltip("Climb speed (units per second) that gives the full nose-up angle.")]
-    [SerializeField] private float riseSpeedForMaxPitch = 3f;
     [SerializeField] private float visualSmoothing = 6f;
 
     [Header("Pose")]
     [Tooltip("Snap back to the starting position and rotation when returning to the Intro.")]
     [SerializeField] private bool resetPoseOnIntro = true;
 
+    /// <summary>Current swimming speed (forward speed plus any boost). Handy for animation and effects.</summary>
+    public float CurrentSpeed { get; private set; }
+
+    /// <summary>1 right after a boost press, fading to 0. Handy for camera FOV kicks or particles.</summary>
+    public float BoostFraction => boostDuration > 0f ? Mathf.Clamp01(boostRemaining / boostDuration) : 0f;
+
     // Captured at Start: the shark is assumed to begin resting on the seabed.
     private float seabedY;
     private Vector3 startPosition;
     private Quaternion startRotation;
 
-    private float targetHeight;
-    private float heightVelocity;
-    private float lastAcceptedPressTime = float.NegativeInfinity;
     private float smoothedTurn;
+    private float pitchAngle;       // degrees, positive = nose up
     private float bank;
-    private float pitch;
+    private float boostRemaining;
+    private float lastBoostTime = float.NegativeInfinity;
 
     // Ignore input on the frame a state changes, so the press that starts
-    // the game (Intro -> Rise) doesn't also count as the first rise tap.
+    // the game (Intro -> Rise) doesn't also trigger the first boost.
     private int stateChangeFrame = -1;
 
     private bool JoyconReady => joycon != null && joycon.Connected;
@@ -80,7 +90,7 @@ public class SharkRise : MonoBehaviour
         startPosition = transform.position;
         startRotation = transform.rotation;
         seabedY = startPosition.y;
-        targetHeight = seabedY;
+        CurrentSpeed = 0f;
     }
 
     private void OnEnable()
@@ -99,21 +109,21 @@ public class SharkRise : MonoBehaviour
 
         if (next == GameState.Rise)
         {
-            targetHeight = transform.position.y;
-            heightVelocity = 0f;
             smoothedTurn = 0f;
-            lastAcceptedPressTime = float.NegativeInfinity;
+            pitchAngle = 0f;
+            boostRemaining = 0f;
+            lastBoostTime = float.NegativeInfinity;
 
-            // Whatever way the player is holding the Joy-Con now counts as "straight ahead".
+            // Whatever way the player is holding the Joy-Con now counts as "level and straight ahead".
             if (joycon != null) joycon.CalibrateTilt();
         }
 
         if (next == GameState.Intro && resetPoseOnIntro)
         {
             transform.SetPositionAndRotation(startPosition, startRotation);
-            targetHeight = startPosition.y;
-            heightVelocity = 0f;
             smoothedTurn = 0f;
+            pitchAngle = 0f;
+            boostRemaining = 0f;
         }
     }
 
@@ -130,7 +140,8 @@ public class SharkRise : MonoBehaviour
                 // GameManager already handles the keyboard start key.
                 if (JoyconReady && joycon.ActionPressedThisFrame)
                     gameManager.RequestStart();
-                UpdateVisual(0f, 0f);
+                CurrentSpeed = 0f;
+                UpdateVisual(0f);
                 break;
 
             case GameState.Rise:
@@ -147,71 +158,78 @@ public class SharkRise : MonoBehaviour
     {
         float dt = Time.deltaTime;
 
-       /*  // --- Rising: each press raises the target; the shark eases up toward it. ---
-        bool tap = (keyboard != null && keyboard.sKey.wasPressedThisFrame)
+        // --- Boost: a press starts a short burst of extra speed (with a cooldown). ---
+        bool tap = (keyboard != null && keyboard.spaceKey.wasPressedThisFrame)
                    || (JoyconReady && joycon.ActionPressedThisFrame);
 
-        // Debounce: ignore presses that come too soon after the last counted one.
-        if (tap && Time.time - lastAcceptedPressTime >= minPressInterval)
+        if (tap && Time.time - lastBoostTime >= boostCooldown)
         {
-            targetHeight += riseDistancePerPress;
-            lastAcceptedPressTime = Time.time;
-        } */
-
-        // --- Boost: each press boosts the target; the shark rushes forward. ---
-        bool squeeze = (keyboard != null && keyboard.spaceKey.wasPressedThisFrame)
-                   || (JoyconReady && joycon.ActionPressedThisFrame);
-
-        // Debounce: ignore presses that come too soon after the last counted one.
-        if (squeeze && Time.time - lastAcceptedPressTime >= minPressInterval)
-        {
-            forwardSpeed = boostSpeed; // boost forward speed
-            lastAcceptedPressTime = Time.time;
-        }
-        if (Time.time - lastAcceptedPressTime >= 1.5f && forwardSpeed != normalSpeed) // reset to normal speed after 1.5 seconds
-        {
-            forwardSpeed = normalSpeed;
+            boostRemaining = boostDuration;
+            lastBoostTime = Time.time;
         }
 
-        
+        // Quadratic fade: strong at the start of the burst, easing out smoothly.
+        float boost = BoostFraction;
+        CurrentSpeed = forwardSpeed + boostSpeedBonus * boost * boost;
+        boostRemaining = Mathf.Max(0f, boostRemaining - dt);
 
-        targetHeight = Mathf.Max(seabedY, targetHeight - idleSinkSpeed * dt);
-
-        Vector3 p = transform.position;
-        p.y = Mathf.SmoothDamp(p.y, targetHeight, ref heightVelocity, riseSmoothTime);
-
-        // --- Steering: tilt (or A / D), smoothed. ---
+        // --- Steering (left/right): tilt or A / D, smoothed. ---
         float turnInput = 0f;
         if (keyboard != null)
         {
             if (keyboard.dKey.isPressed) turnInput += 1f;
             if (keyboard.aKey.isPressed) turnInput -= 1f;
-            if (keyboard.sKey.isPressed) targetHeight += riseDistancePerPress;
         }
         if (JoyconReady)
             turnInput += joycon.Steer;
         turnInput = Mathf.Clamp(turnInput, -1f, 1f);
 
-        float k = 1f - Mathf.Exp(-dt / Mathf.Max(0.01f, turnSmoothing));
-        smoothedTurn = Mathf.Lerp(smoothedTurn, turnInput, k);
+        float kTurn = 1f - Mathf.Exp(-dt / Mathf.Max(0.01f, turnSmoothing));
+        smoothedTurn = Mathf.Lerp(smoothedTurn, turnInput, kTurn);
 
-        // Turn around the world's up axis so the root never pitches or rolls
-        // (pitch and bank are applied to the Visual child only).
+        // The root only ever turns around the world's up axis; pitch is tracked
+        // separately (and shown on the Visual child) so cameras on the root stay level.
         transform.Rotate(0f, smoothedTurn * turnSpeed * dt, 0f, Space.World);
 
-        // --- Forward: always advance along the horizontal part of the facing direction. ---
-        p += HorizontalForward() * forwardSpeed * dt;
+        // --- Pitch (up/down): tilt or W / S, smoothed. ---
+        float pitchInput = 0f;
+        if (keyboard != null)
+        {
+            if (keyboard.wKey.isPressed) pitchInput += 1f;
+            if (keyboard.sKey.isPressed) pitchInput -= 1f;
+        }
+        if (JoyconReady)
+            pitchInput += joycon.Pitch;
+        pitchInput = Mathf.Clamp(pitchInput, -1f, 1f);
+
+        float targetPitch = pitchInput >= 0f ? pitchInput * maxClimbAngle : pitchInput * maxDiveAngle;
+        float kPitch = 1f - Mathf.Exp(-dt / Mathf.Max(0.01f, pitchSmoothing));
+        pitchAngle = Mathf.Lerp(pitchAngle, targetPitch, kPitch);
+
+        // --- Movement: swim along the nose direction (horizontal heading plus pitch). ---
+        float pitchRad = pitchAngle * Mathf.Deg2Rad;
+        Vector3 direction = HorizontalForward() * Mathf.Cos(pitchRad) + Vector3.up * Mathf.Sin(pitchRad);
+
+        Vector3 p = transform.position + direction * CurrentSpeed * dt;
+        p.y = Mathf.Max(seabedY, p.y); // never below the seabed
         transform.position = p;
 
-        UpdateVisual(smoothedTurn, heightVelocity);
+        UpdateVisual(smoothedTurn);
     }
 
     private void UpdateSurface()
     {
-        // Just coast forward slowly for the arrival moment.
-        transform.position += HorizontalForward() * (forwardSpeed * 0.5f) * Time.deltaTime;
-        smoothedTurn = Mathf.MoveTowards(smoothedTurn, 0f, 2f * Time.deltaTime);
-        UpdateVisual(smoothedTurn, 0f);
+        float dt = Time.deltaTime;
+
+        // Level out and coast forward slowly for the arrival moment.
+        boostRemaining = Mathf.Max(0f, boostRemaining - dt);
+        pitchAngle = Mathf.MoveTowards(pitchAngle, 0f, 30f * dt);
+        smoothedTurn = Mathf.MoveTowards(smoothedTurn, 0f, 2f * dt);
+
+        CurrentSpeed = forwardSpeed * 0.5f;
+        transform.position += HorizontalForward() * CurrentSpeed * dt;
+
+        UpdateVisual(smoothedTurn);
     }
 
     private Vector3 HorizontalForward()
@@ -221,18 +239,16 @@ public class SharkRise : MonoBehaviour
         return f.sqrMagnitude > 0.0001f ? f.normalized : Vector3.forward;
     }
 
-    private void UpdateVisual(float turn, float verticalSpeed)
+    private void UpdateVisual(float turn)
     {
         if (visual == null) return;
 
-        // Bank into the turn (right turn = roll right) and pitch the nose up while climbing.
+        // Bank into the turn (right turn = roll right); the nose pitch matches the movement.
+        // In Unity a NEGATIVE X rotation lifts the nose.
         float targetBank = -turn * maxBank;
-        float targetPitch = -Mathf.Clamp(verticalSpeed / Mathf.Max(0.01f, riseSpeedForMaxPitch), -1f, 1f) * maxPitch;
-
         float k = 1f - Mathf.Exp(-visualSmoothing * Time.deltaTime);
         bank = Mathf.Lerp(bank, targetBank, k);
-        pitch = Mathf.Lerp(pitch, targetPitch, k);
 
-        visual.localRotation = Quaternion.Euler(pitch, 0f, bank);
+        visual.localRotation = Quaternion.Euler(-pitchAngle, 0f, bank);
     }
 }

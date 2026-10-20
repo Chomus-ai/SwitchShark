@@ -29,6 +29,16 @@ public class JoyconInputProvider : MonoBehaviour
     [SerializeField] private float tiltDeadzone = 0.05f;
     [SerializeField] private bool invertSteer = false;
 
+    [Header("Pitch (tilt up / down)")]
+    [Tooltip("Which accelerometer axis changes when you tilt the front of the controller up/down. " +
+             "Must be a different axis from the steering one. Find it with Log Values.")]
+    [SerializeField] private Vector3 pitchAxis = new Vector3(1f, 0f, 0f);
+    [Tooltip("Tilt (in g) from neutral that counts as full up / full down.")]
+    [SerializeField] private float pitchRange = 0.5f;
+    [SerializeField] private float pitchDeadzone = 0.05f;
+    [Tooltip("Tick if tilting UP gives a negative reading.")]
+    [SerializeField] private bool invertPitch = false;
+
     [Header("Stillness (Return)")]
     [Tooltip("Motion at or below this counts as perfectly still (full descent).")]
     [SerializeField] private float stillThreshold = 0.02f;
@@ -40,6 +50,12 @@ public class JoyconInputProvider : MonoBehaviour
              "Stops a controller resting on a table from counting as 'held still'.")]
     [SerializeField] private bool requireButtonHeldForStillness = false;
 
+    [Header("Rock to rise (Rise)")]
+    [Tooltip("How far (in g) the tilt must swing away from its slow-moving average to count as one rock. Lower = more sensitive.")]
+    [SerializeField] private float rockThreshold = 0.25f;
+    [Tooltip("Seconds the 'resting tilt' takes to follow slow movements. Slow tilts then don't count as rocks.")]
+    [SerializeField] private float baselineTime = 1.0f;
+
     [Header("Debug")]
     [SerializeField] private bool logValues = false;
     [Tooltip("Logs the name of every Joy-Con button as you press it. Use it to find the right Action Button.")]
@@ -49,12 +65,17 @@ public class JoyconInputProvider : MonoBehaviour
     private bool actionHeldPrev;
     private bool actionPressed;
     private bool[] prevButtons;
+
+    private float tiltBaseline;
+    private int rockSide;
+    private bool rocked;
     private float retryTimer;
 
     private Vector3 prevAccel;
     private bool hasPrevAccel;
     private float smoothedMotion;
     private float neutralTilt;
+    private float neutralPitch;
     private float logTimer;
 
     /// <summary>True once a matching Joy-Con has been found.</summary>
@@ -62,6 +83,20 @@ public class JoyconInputProvider : MonoBehaviour
 
     /// <summary>True for exactly one frame each time the action button goes down.</summary>
     public bool ActionPressedThisFrame => actionPressed;
+
+    /// <summary>
+    /// True for one frame each time the controller is rocked from one side to the
+    /// other (tilted past the threshold, then past it again the opposite way).
+    /// </summary>
+    public bool RockedThisFrame => rocked;
+
+    /// <summary>Call when Rise begins so earlier tilt history doesn't count.</summary>
+    public void ResetRock()
+    {
+        tiltBaseline = CurrentTilt;
+        rockSide = 0;
+        rocked = false;
+    }
 
     public float Steer
     {
@@ -72,6 +107,19 @@ public class JoyconInputProvider : MonoBehaviour
             if (Mathf.Abs(t) < tiltDeadzone) return 0f;
             float s = Mathf.Clamp(t / tiltRange, -1f, 1f);
             return invertSteer ? -s : s;
+        }
+    }
+
+    /// <summary>-1 (tilted fully down) to +1 (tilted fully up), relative to the neutral hold.</summary>
+    public float Pitch
+    {
+        get
+        {
+            if (joycon == null) return 0f;
+            float t = CurrentPitchTilt - neutralPitch;
+            if (Mathf.Abs(t) < pitchDeadzone) return 0f;
+            float p = Mathf.Clamp(t / pitchRange, -1f, 1f);
+            return invertPitch ? -p : p;
         }
     }
 
@@ -88,10 +136,14 @@ public class JoyconInputProvider : MonoBehaviour
     private float CurrentTilt =>
         joycon == null ? 0f : Vector3.Dot(joycon.GetAccel(), tiltAxis.normalized);
 
+    private float CurrentPitchTilt =>
+        joycon == null ? 0f : Vector3.Dot(joycon.GetAccel(), pitchAxis.normalized);
+
     /// <summary>Call when Eat begins so the player's current hold counts as 'straight ahead'.</summary>
     public void CalibrateTilt()
     {
         neutralTilt = CurrentTilt;
+        neutralPitch = CurrentPitchTilt;
     }
 
     private void Update()
@@ -119,6 +171,8 @@ public class JoyconInputProvider : MonoBehaviour
 
         if (logButtonPresses) LogButtonPresses();
 
+        UpdateRock();
+
         if (logValues)
         {
             logTimer -= Time.deltaTime;
@@ -126,10 +180,35 @@ public class JoyconInputProvider : MonoBehaviour
             {
                 logTimer = 0.25f;
                 Debug.Log($"[Joycon] accel={accel} (|a|={accel.magnitude:F2}) " +
-                          $"tilt={CurrentTilt:F2} motion={smoothedMotion:F3} " +
-                          $"steer={Steer:F2} stillness={Stillness:F2}");
+                          $"tilt={CurrentTilt:F2} pitchTilt={CurrentPitchTilt:F2} motion={smoothedMotion:F3} " +
+                          $"steer={Steer:F2} pitch={Pitch:F2} stillness={Stillness:F2}");
             }
         }
+    }
+
+    private void UpdateRock()
+    {
+        rocked = false;
+        float tilt = CurrentTilt;
+
+        // Slow-moving average of the tilt = where the controller "rests".
+        // Frame-rate independent smoothing, so slow tilts never count as rocks.
+        float follow = 1f - Mathf.Exp(-Time.deltaTime / Mathf.Max(0.05f, baselineTime));
+        tiltBaseline = Mathf.Lerp(tiltBaseline, tilt, follow);
+
+        float dev = tilt - tiltBaseline;
+        int side = dev > rockThreshold ? 1 : (dev < -rockThreshold ? -1 : 0);
+
+        if (side != 0 && side != rockSide)
+        {
+            // Reaching the opposite extreme from last time = one rock.
+            // The very first extreme only arms the detector.
+            if (rockSide != 0) rocked = true;
+            rockSide = side;
+        }
+
+        if (rocked && logValues)
+            Debug.Log("[Joycon] Rock detected");
     }
 
     private void LogButtonPresses()
