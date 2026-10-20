@@ -541,7 +541,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 367659225}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 0
+  m_Antialiasing: 3
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -795,12 +795,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 952540654}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 140.52866, y: -0.000020086765, z: 382.25693}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.6671638, y: 0.23429143, z: 0.23429143, w: -0.6671638}
+  m_LocalPosition: {x: -3.8076088, y: -18.960403, z: 20.319368}
+  m_LocalScale: {x: 20, y: 20, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 682837841}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!199 &952540656
 ParticleSystemRenderer:
@@ -828,7 +828,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e823cd5b5d27c0f4b8256e7c12ee3e6d, type: 2}
+  - {fileID: 10301, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1447,7 +1447,7 @@ ParticleSystem:
         m_RotationOrder: 4
     separateAxes: 0
   ColorModule:
-    enabled: 0
+    enabled: 1
     gradient:
       serializedVersion: 2
       minMaxState: 1
@@ -1455,9 +1455,9 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 1}
+        key0: {r: 1, g: 1, b: 1, a: 0}
         key1: {r: 1, g: 1, b: 1, a: 1}
-        key2: {r: 0, g: 0, b: 0, a: 0}
+        key2: {r: 0, g: 0, b: 0, a: 1}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
         key5: {r: 0, g: 0, b: 0, a: 0}
@@ -1472,17 +1472,17 @@ ParticleSystem:
         ctime6: 0
         ctime7: 0
         atime0: 0
-        atime1: 65535
-        atime2: 0
-        atime3: 0
-        atime4: 0
+        atime1: 16191
+        atime2: 50115
+        atime3: 65535
+        atime4: 65535
         atime5: 0
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: -1
+        m_ColorSpace: 0
         m_NumColorKeys: 2
-        m_NumAlphaKeys: 2
+        m_NumAlphaKeys: 4
       minGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -4229,6 +4229,9 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 6138970387246308948, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
       insertIndex: 0
+      addedObject: {fileID: 952540655}
+    - targetCorrespondingSourceObject: {fileID: 6138970387246308948, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      insertIndex: 1
       addedObject: {fileID: 454623097}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1044907175037533836, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
@@ -4314,7 +4317,6 @@ SceneRoots:
   - {fileID: 9080643587784469794}
   - {fileID: 8446468352944639261}
   - {fileID: 387599972}
-  - {fileID: 952540655}
   - {fileID: 583661320}
   - {fileID: 625042026}
   - {fileID: 992938896}
