@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2649796874866532007}
   - component: {fileID: 158067828783814162}
   - component: {fileID: 8041344194928435714}
+  - component: {fileID: 3587353445351152054}
   m_Layer: 0
   m_Name: HDEel
   m_TagString: Untagged
@@ -99,6 +100,29 @@ MonoBehaviour:
   speed: 4
   weaveTurnRate: 0
   weaveFrequency: 0
+--- !u!136 &3587353445351152054
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2565157463322096170}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.1
+  m_Height: 0.76
+  m_Direction: 2
+  m_Center: {x: -0.004585266, y: 0, z: -0.078704834}
 --- !u!1001 &1931975924733035504
 PrefabInstance:
   m_ObjectHideFlags: 0
