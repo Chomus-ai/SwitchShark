@@ -11,7 +11,7 @@ using UnityEngine;
 /// Verify the JoyconLib calls used here (GetButton, GetButtonDown, GetAccel)
 /// against JoyconDemo.cs in your copy of the library.
 /// </summary>
-public class JoyconInputProvider : MonoBehaviour
+public class JoyconInputProvider : ControllerInputProvider
 {
     [Header("Which Joy-Con")]
     [Tooltip("Tick for the left Joy-Con, untick for the right one.")]
@@ -79,26 +79,26 @@ public class JoyconInputProvider : MonoBehaviour
     private float logTimer;
 
     /// <summary>True once a matching Joy-Con has been found.</summary>
-    public bool Connected => joycon != null;
+    public override bool Connected => joycon != null;
 
     /// <summary>True for exactly one frame each time the action button goes down.</summary>
-    public bool ActionPressedThisFrame => actionPressed;
+    public override bool ActionPressedThisFrame => actionPressed;
 
     /// <summary>
     /// True for one frame each time the controller is rocked from one side to the
     /// other (tilted past the threshold, then past it again the opposite way).
     /// </summary>
-    public bool RockedThisFrame => rocked;
+    public override bool RockedThisFrame => rocked;
 
     /// <summary>Call when Rise begins so earlier tilt history doesn't count.</summary>
-    public void ResetRock()
+    public override void ResetRock()
     {
         tiltBaseline = CurrentTilt;
         rockSide = 0;
         rocked = false;
     }
 
-    public float Steer
+    public override float Steer
     {
         get
         {
@@ -111,7 +111,7 @@ public class JoyconInputProvider : MonoBehaviour
     }
 
     /// <summary>-1 (tilted fully down) to +1 (tilted fully up), relative to the neutral hold.</summary>
-    public float Pitch
+    public override float Pitch
     {
         get
         {
@@ -123,7 +123,7 @@ public class JoyconInputProvider : MonoBehaviour
         }
     }
 
-    public float Stillness
+    public override float Stillness
     {
         get
         {
@@ -140,7 +140,7 @@ public class JoyconInputProvider : MonoBehaviour
         joycon == null ? 0f : Vector3.Dot(joycon.GetAccel(), pitchAxis.normalized);
 
     /// <summary>Call when Eat begins so the player's current hold counts as 'straight ahead'.</summary>
-    public void CalibrateTilt()
+    public override void CalibrateTilt()
     {
         neutralTilt = CurrentTilt;
         neutralPitch = CurrentPitchTilt;

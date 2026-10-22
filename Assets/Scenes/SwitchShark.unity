@@ -119,6 +119,82 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &98720734
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 98720735}
+  - component: {fileID: 98720737}
+  - component: {fileID: 98720736}
+  m_Layer: 0
+  m_Name: ArdCtrler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &98720735
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98720734}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 338.46997, y: 21.98428, z: 172.99626}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &98720736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98720734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0b03e9979eeed47b0e29196c1a9104, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArduinoInputProvider
+  arduino: {fileID: 98720737}
+  steerSource: 0
+  steerRange: 45
+  steerDeadzone: 5
+  invertSteer: 0
+  pitchRange: 30
+  pitchDeadzone: 5
+  invertPitch: 0
+  stillThreshold: 4
+  moveThreshold: 30
+  motionSmoothing: 0.2
+  requireButtonHeldForStillness: 0
+  rockThreshold: 15
+  baselineTime: 1
+  logValues: 0
+--- !u!114 &98720737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98720734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01ebb2592a045a1468063d446ac5ec56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArduinoController
+  portName: COM3
+  baudRate: 115200
+  debugDisplay: 1
+  logArduinoMessages: 1
 --- !u!1 &297764390 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1044907175037533836, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
@@ -602,7 +678,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 10000
-  field of view: 25.5
+  field of view: 31.9
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -628,8 +704,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 583661315}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.000994747, y: 0.9193777, z: -0.0021753255, w: 0.3933688}
-  m_LocalPosition: {x: 139.86824, y: 0.9347629, z: 382.5552}
+  m_LocalRotation: {x: 0.05370485, y: 0.33079815, z: -0.01885964, w: 0.9419834}
+  m_LocalPosition: {x: 139.80441, y: 1.018, z: 381.04843}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4038,6 +4114,10 @@ PrefabInstance:
       value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
+      propertyPath: joycon
+      value: 
+      objectReference: {fileID: 98720736}
+    - target: {fileID: 4769077678524316586, guid: 70b1985f0bdf06c43ae2790dc16735c8, type: 3}
       propertyPath: visual
       value: 
       objectReference: {fileID: 454623097}
@@ -4311,3 +4391,4 @@ SceneRoots:
   - {fileID: 978294067}
   - {fileID: 1295499400}
   - {fileID: 1473772020}
+  - {fileID: 98720735}

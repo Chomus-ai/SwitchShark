@@ -16,7 +16,7 @@ public class SharkRise : MonoBehaviour
 {
     [SerializeField] private GameManager gameManager;
     [Tooltip("Optional. Leave empty to use the keyboard only.")]
-    [SerializeField] private JoyconInputProvider joycon;
+    [SerializeField] private ControllerInputProvider joycon;
     [Tooltip("Optional. A child object holding the shark MODEL (with identity rotation). " +
              "It is pitched and banked to match the movement. Leave empty to skip.")]
     [SerializeField] private Transform visual;
