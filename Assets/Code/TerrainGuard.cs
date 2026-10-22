@@ -20,25 +20,25 @@ using UnityEngine;
 /// rocks are on. Trigger colliders (fish, the Mouth) are ignored.
 /// </summary>
 [DefaultExecutionOrder(100)] // run after SharkBoundary and other LateUpdate scripts
-public class SharkTerrainGuard : MonoBehaviour
+public class STerrainGuard : MonoBehaviour
 {
     [Header("What counts as terrain")]
     [Tooltip("Put terrain and rocks on their own layer and select it here. " +
              "Do NOT include the shark's own layer.")]
     [SerializeField] private LayerMask terrainMask;
 
-    [Header("Shark size")]
-    [Tooltip("Radius of the sphere used to represent the shark's body in the sweep.")]
+    [Header("Size")]
+    [Tooltip("Radius of the sphere used to represent the body in the sweep.")]
     [SerializeField] private float radius = 0.6f;
-    [Tooltip("Gap kept between the shark and a surface it stops against.")]
+    [Tooltip("Gap kept between the mob and a surface it stops against.")]
     [SerializeField] private float skin = 0.05f;
 
     [Header("Ground clearance")]
-    [Tooltip("The shark is kept at least this far above the ground below it.")]
+    [Tooltip("The mob is kept at least this far above the ground below it.")]
     [SerializeField] private float groundClearance = 0.5f;
-    [Tooltip("The ground ray starts this far above the shark (lets it recover from being inside terrain).")]
+    [Tooltip("The ground ray starts this far above the mob (lets it recover from being inside terrain).")]
     [SerializeField] private float groundProbeHeight = 20f;
-    [Tooltip("How far below the shark the ground ray reaches.")]
+    [Tooltip("How far below the mob the ground ray reaches.")]
     [SerializeField] private float groundProbeDepth = 20f;
 
     [Header("Avoidance steering (assist)")]
