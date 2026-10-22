@@ -168,10 +168,10 @@ MonoBehaviour:
   steerSource: 0
   steerRange: 45
   steerDeadzone: 5
-  invertSteer: 0
+  invertSteer: 1
   pitchRange: 30
   pitchDeadzone: 5
-  invertPitch: 0
+  invertPitch: 1
   stillThreshold: 4
   moveThreshold: 30
   motionSmoothing: 0.2
@@ -191,9 +191,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01ebb2592a045a1468063d446ac5ec56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArduinoController
-  portName: COM3
+  portName: COM7
   baudRate: 115200
-  debugDisplay: 1
+  debugDisplay: 0
   logArduinoMessages: 1
 --- !u!1 &297764390 stripped
 GameObject:
