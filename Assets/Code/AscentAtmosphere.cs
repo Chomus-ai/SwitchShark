@@ -13,7 +13,6 @@ public class AscentAtmosphere : MonoBehaviour
     [SerializeField] private AudioLowPassFilter lowPass; // on the audio listener / camera
     [SerializeField] private Vector2 cutoffHz = new Vector2(800f, 22000f);
     [SerializeField] private AnimationCurve curve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    private float currentT;
     private void Update()
     {
         if (shark == null) return;
@@ -23,14 +22,6 @@ public class AscentAtmosphere : MonoBehaviour
         if (shallowVolume) shallowVolume.weight = t;
         if (sun) sun.intensity = Mathf.Lerp(sunIntensity.x, sunIntensity.y, t);
         if (lowPass) lowPass.cutoffFrequency = Mathf.Lerp(cutoffHz.x, cutoffHz.y, t);
-        currentT = t;
     }
-
-    private void OnGUI()
-    {
-        if (shark == null) return;
-        GUI.Label(new Rect(10, 10, 400, 25), $"y = {shark.position.y:F1}   t = {currentT:F2}");
-    }
-
     
 }

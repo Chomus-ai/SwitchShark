@@ -3926,30 +3926,30 @@ MonoBehaviour:
     prefab: {fileID: 2565157463322096170, guid: 0c01d25e0a7e099418c92155c0585d18, type: 3}
     spawnWeight: 1
     scaleRange: {x: 5, y: 10}
-    heightRange: {x: 0, y: 1000}
+    heightRange: {x: 55, y: 125}
     fadeMargin: 5
   - name: Prawn
     prefab: {fileID: 5053517531473302017, guid: 4ccfa132390b97a4ba84e8412f5bdf68, type: 3}
     spawnWeight: 1
     scaleRange: {x: 1, y: 3}
-    heightRange: {x: 0, y: 1000}
+    heightRange: {x: 5, y: 55}
     fadeMargin: 5
-  initialBurst: 6
-  spawnInterval: 1
-  maxAlive: 30
+  initialBurst: 20
+  spawnInterval: 0.5
+  maxAlive: 40
   distanceAhead: {x: 20, y: 5}
   lateralRange: 40
   aboveBias: 0.7
   maxClimbAngle: 20
-  reachFraction: 0.9
-  minAbove: 1
+  reachFraction: 0.6
+  minAbove: 2
   verticalJitter: 0
-  surfaceHeight: 100
+  surfaceHeight: 125
   surfaceMargin: 3
   minSpacing: 3
   terrainBufferHeight: 1.5
-  despawnBehindDistance: 30
-  despawnMaxDistance: 125
+  despawnBehindDistance: 25
+  despawnMaxDistance: 100
 --- !u!1 &1596094819 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3099726741672418996, guid: 54f66a8133e88b94dbe314cc4c13414e, type: 3}
@@ -4136,6 +4136,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 6070814928974391979, guid: 3dacddc9a6668b741b83d01857177cda, type: 3}
+      propertyPath: m_MaterialTemplate
+      value: 
+      objectReference: {fileID: 2100000, guid: dd20fa83572b6454b9dfb9fd916c927a, type: 2}
     - target: {fileID: 6663856634069843070, guid: 3dacddc9a6668b741b83d01857177cda, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
