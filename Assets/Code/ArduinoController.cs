@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO.Ports;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 
@@ -11,10 +12,17 @@ using UnityEngine;
 /// out in ArduinoInputProvider, mirroring JoyconInputProvider.
 ///
 /// Requires: Edit > Project Settings > Player > Other Settings >
-///           Api Compatibility Level = ".NET Framework" (System.IO.Ports).
+///           Api Compatibility Level = ".NET Framework" (System.IO.Ports),
+///           Scripting Backend = Mono (recommended for serial on macOS).
 ///
-/// Testable in isolation: put this on an empty GameObject, set Port Name, tick
-/// Debug Display and press Play. No other script is needed.
+/// Port selection (works on Windows and macOS):
+///   1. If Port Name is set AND that port currently exists, it is used.
+///   2. Otherwise the port is auto-detected (usbmodem / usbserial / wchusbserial
+///      on macOS, first COM port on Windows).
+///   Leave Port Name empty to always auto-detect.
+///
+/// Testable in isolation: put this on an empty GameObject, tick Debug Display
+/// and press Play. No other script is needed.
 ///
 /// The serial read runs on a background thread so a slow/blocked port can never
 /// freeze the game. If the cable is unplugged it retries every 2 seconds, and
@@ -26,8 +34,9 @@ public class ArduinoController : MonoBehaviour
     public static ArduinoController Instance { get; private set; }
 
     [Header("Serial")]
-    [Tooltip("Windows: COM3, COM4...: /dev/cu.usbmodemXXXX. Available ports are logged on Play.")]
-    [SerializeField] private string portName = "COM3";
+    [Tooltip("Optional override. Windows: COM3, COM4... macOS: /dev/cu.usbmodemXXXX. " +
+             "Leave EMPTY (or if the name isn't present) to auto-detect. Available ports are logged on Play.")]
+    [SerializeField] private string portName = "";
     [Tooltip("Must match Serial.begin() in the Arduino sketch (115200).")]
     [SerializeField] private int baudRate = 115200;
 
@@ -66,6 +75,43 @@ public class ArduinoController : MonoBehaviour
 
     private bool previousHeld;
 
+    // Copied on the main thread so the reader thread never touches serialized fields mid-edit.
+    private string configuredPort;
+    private int configuredBaud;
+
+    // ------------------------------------------------------------------
+    // Port selection
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// Picks the serial port to open. Called from the reader thread on every (re)connect
+    /// attempt, so an Arduino plugged in later or on a different USB port is still found.
+    /// </summary>
+    private static string ResolvePort(string preferred)
+    {
+        string[] ports;
+        try { ports = SerialPort.GetPortNames(); }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[ArduinoController] Could not list serial ports: " + e.Message);
+            return null;
+        }
+
+        // 1. Honour the manual override, but only if that port actually exists right now.
+        if (!string.IsNullOrWhiteSpace(preferred) && ports.Contains(preferred))
+            return preferred;
+
+        // 2. macOS / Linux: prefer the call-out device (/dev/cu.*). The /dev/tty.* twin can
+        //    block while waiting for a carrier signal, so it is skipped.
+        string unixPort = ports.FirstOrDefault(p =>
+            p.StartsWith("/dev/cu.", StringComparison.Ordinal) &&
+            (p.Contains("usbmodem") || p.Contains("usbserial") || p.Contains("wchusbserial")));
+        if (unixPort != null) return unixPort;
+
+        // 3. Windows: first COM port.
+        return ports.FirstOrDefault(p => p.StartsWith("COM", StringComparison.OrdinalIgnoreCase));
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -80,6 +126,9 @@ public class ArduinoController : MonoBehaviour
 
     private void OnEnable()
     {
+        configuredPort = portName;
+        configuredBaud = baudRate;
+
         running = true;
         readThread = new Thread(ReadLoop) { IsBackground = true, Name = "ArduinoController serial reader" };
         readThread.Start();
@@ -93,6 +142,14 @@ public class ArduinoController : MonoBehaviour
             readThread.Join(1000);
             readThread = null;
         }
+    }
+
+    private void OnApplicationQuit()
+    {
+        // Make sure the port is released so the next launch (or the Arduino IDE) can open it.
+        running = false;
+        if (readThread != null) readThread.Join(1000);
+        SafeClose();
     }
 
     // ------------------------------------------------------------------
@@ -132,9 +189,17 @@ public class ArduinoController : MonoBehaviour
 
     private bool TryOpen()
     {
+        string name = ResolvePort(configuredPort);
+        if (name == null)
+        {
+            // Nothing plugged in yet - stay quiet-ish and retry.
+            Debug.LogWarning("[ArduinoController] No Arduino serial port found (retrying every 2 s).");
+            return false;
+        }
+
         try
         {
-            port = new SerialPort(portName, baudRate)
+            port = new SerialPort(name, configuredBaud)
             {
                 ReadTimeout = 100,
                 WriteTimeout = 100,
@@ -142,14 +207,14 @@ public class ArduinoController : MonoBehaviour
             };
             port.Open();
             port.DiscardInBuffer();
-            Debug.Log("[ArduinoController] Opened " + portName + " @ " + baudRate +
+            Debug.Log("[ArduinoController] Opened " + name + " @ " + configuredBaud +
                       " (opening the port resets an Uno - expect ~2 s before data flows)");
             return true;
         }
         catch (Exception e)
         {
-            Debug.LogWarning("[ArduinoController] Could not open " + portName + ": " + e.Message);
-            port = null;
+            Debug.LogWarning("[ArduinoController] Could not open " + name + ": " + e.Message);
+            SafeClose();
             return false;
         }
     }
