@@ -159,7 +159,9 @@ public class TempMouseSwimControls : MonoBehaviour
 
         switch (gameManager.CurrentState)
         {
+            // At the surface the player keeps control (the game returns to the Intro after a few seconds).
             case GameState.Rise:
+            case GameState.Surface:
                 if (keyboard != null)
                 {
                     forward = (keyboard.wKey.isPressed ? 1f : 0f) - (keyboard.sKey.isPressed ? 1f : 0f);
@@ -170,17 +172,11 @@ public class TempMouseSwimControls : MonoBehaviour
                     if (input.sqrMagnitude > 0f) requested = (Aim * input.y + right * input.x).normalized * s;
                 }
                 break;
-
-            case GameState.Surface:
-                Vector3 flat = Vector3.ProjectOnPlane(t.forward, Vector3.up);
-                requested = (flat.sqrMagnitude > 0.0001f ? flat.normalized : Vector3.forward) * speed * 0.5f;
-                requested.y = 0f;
-                break;
         }
 
         velocity = Vector3.SmoothDamp(velocity, requested, ref velocityDamping, 0.22f, Mathf.Infinity, dt);
         Vector3 p = t.position + velocity * dt;
-        p.y = Mathf.Max(startPosition.y, p.y); // never below the starting seabed height
+        p.y = Mathf.Clamp(p.y, startPosition.y, OceanZones.SurfaceY - 0.2f); // between the seabed and just under the waves
         t.position = p;
         shark.CurrentSpeed = velocity.magnitude;
 
@@ -189,7 +185,7 @@ public class TempMouseSwimControls : MonoBehaviour
         float heading = t.eulerAngles.y;
         float yawStep = 0f;
         float desiredPitch = 0f;
-        if (gameManager.CurrentState == GameState.Rise)
+        if (gameManager.CurrentState != GameState.Intro)
         {
             yawStep = Mathf.Clamp(Mathf.DeltaAngle(heading, yaw), -turnRate * dt, turnRate * dt);
             if (forward > 0f && velocity.sqrMagnitude > 0.01f) desiredPitch = Mathf.Clamp(pitch, -60f, 60f);

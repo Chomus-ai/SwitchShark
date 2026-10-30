@@ -133,6 +133,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   radius: 0.05
+  bodyHalfLength: 0
   skin: 0.05
   groundClearance: 0.3
   groundProbeHeight: 20

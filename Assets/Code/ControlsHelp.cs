@@ -15,6 +15,8 @@ public class ControlsHelp : MonoBehaviour
     [SerializeField] private GameManager gameManager;
     [Tooltip("Optional. When it is active, mouse + keyboard instructions are shown.")]
     [SerializeField] private TempMouseSwimControls mouseControls;
+    [Tooltip("Optional. Shows how many fish were eaten when the surface is reached. Found automatically if empty.")]
+    [SerializeField] private SharkEater eater;
 
     [SerializeField] private CanvasGroup startPrompt;
     [SerializeField] private TMP_Text startTitle;
@@ -50,19 +52,37 @@ public class ControlsHelp : MonoBehaviour
         "<b>F2</b><pos=40%>Mouse + keyboard";
 
     private float riseStartTime = float.NegativeInfinity;
+    private float surfaceMessageUntil = float.NegativeInfinity;
+    [Tooltip("Seconds the 'You reached the surface!' message stays up.")]
+    [SerializeField] private float surfaceMessageTime = 5f;
     private bool? pinned; // null = automatic, true/false = player pressed H
 
     private bool MouseMode => mouseControls != null && mouseControls.IsActive;
 
+    private void Start()
+    {
+        if (eater == null) eater = FindAnyObjectByType<SharkEater>();
+    }
+
     private void OnEnable()
     {
-        if (gameManager != null) gameManager.StateChanged += HandleStateChanged;
+        if (gameManager != null)
+        {
+            gameManager.StateChanged += HandleStateChanged;
+            gameManager.SurfaceReached += HandleSurfaceReached;
+        }
     }
 
     private void OnDisable()
     {
-        if (gameManager != null) gameManager.StateChanged -= HandleStateChanged;
+        if (gameManager != null)
+        {
+            gameManager.StateChanged -= HandleStateChanged;
+            gameManager.SurfaceReached -= HandleSurfaceReached;
+        }
     }
+
+    private void HandleSurfaceReached() => surfaceMessageUntil = Time.time + surfaceMessageTime;
 
     private void HandleStateChanged(GameState previous, GameState next)
     {
@@ -79,12 +99,13 @@ public class ControlsHelp : MonoBehaviour
         if (keyboard != null && keyboard.hKey.wasPressedThisFrame)
             pinned = !(controlsCard != null && controlsCard.alpha > 0.5f);
 
-        // Start prompt
-        bool showPrompt = state != GameState.Rise;
+        // Start prompt; also the "reached the surface" message (as its own state, or for a few seconds mid-swim)
+        bool surfaced = state == GameState.Surface || (state == GameState.Rise && Time.time < surfaceMessageUntil);
+        bool showPrompt = state != GameState.Rise || surfaced;
         if (startTitle != null)
-            startTitle.text = state == GameState.Surface ? "You reached the surface!" : "Rise from the midnight zone";
+            startTitle.text = surfaced ? "You reached the surface!" : "Rise from the midnight zone";
         if (startHint != null)
-            startHint.text = state == GameState.Surface ? "Back to the deep in a moment..."
+            startHint.text = surfaced ? SurfaceSummary()
                            : MouseMode ? "Press  <b>SPACE</b>,  <b>W</b>  or  <b>CLICK</b>  to start"
                            : "Press the  <b>Joy-Con button</b>  or  <b>SPACE</b>  to start";
         Fade(startPrompt, showPrompt ? (state == GameState.Intro ? 0.75f + 0.25f * Mathf.Sin(Time.time * 3f) : 1f) : 0f);
@@ -95,6 +116,15 @@ public class ControlsHelp : MonoBehaviour
         bool showCard = state != GameState.Surface && (pinned ?? automatic);
         Fade(controlsCard, showCard ? 1f : 0f);
         Fade(helpHint, showCard || state == GameState.Surface ? 0f : 0.8f);
+    }
+
+    private string SurfaceSummary()
+    {
+        int eaten = eater != null ? eater.EatenCount : 0;
+        string fish = eaten == 1 ? "1 fish" : $"{eaten} fish";
+        return gameManager.CurrentState == GameState.Surface
+            ? $"You ate <b>{fish}</b> on the way up   ·   back to the deep in {Mathf.CeilToInt(gameManager.SurfaceTimeRemaining)}"
+            : $"You ate <b>{fish}</b> on the way up   ·   keep exploring, or dive back down";
     }
 
     private void Fade(CanvasGroup group, float target)

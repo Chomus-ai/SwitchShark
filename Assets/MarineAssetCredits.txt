@@ -1,0 +1,75 @@
+EXHIBIT ASSET CREDITS
+
+Added habitats are illustrative additions, not species identified in the original deep-water footage. Barramundi and the preserved Spongia specimen illustrate a shallow coastal ledge. Coral and gelatinous animal species/depth ranges need curator review before scientific labelling.
+
+Crystal Jellyfish (Leptomedusae)
+By n-
+https://sketchfab.com/3d-models/crystal-jellyfish-leptomedusae-38ac0d91213d447eb3366f615298ce8f
+Licence: by
+https://creativecommons.org/licenses/by/4.0/
+Changes: Converted to FBX; preserved rig and pulse animation; removed helper sphere; rescaled; replaced unlit material with lamp-lit translucent tissue.
+
+Deep Water Coral
+By komashenn
+https://sketchfab.com/3d-models/deep-water-coral-f5aa69dbc26d493ba8090ac1c8f5c4c1
+Licence: by
+https://creativecommons.org/licenses/by/4.0/
+Changes: Retained one colony; decimated to 18000 triangles; rescaled; converted to FBX; replaced material with restrained rough PBR material.
+
+Porifera: Spongia officinalis
+By Digital Atlas of Ancient Life; model by Emily Hauf
+https://sketchfab.com/3d-models/porifera-spongia-officinalis-3780c9260b7e49f0ab4582dc3f8f73dd
+Licence: cc0
+https://creativecommons.org/publicdomain/zero/1.0/
+Changes: Joined scan parts; decimated to 14000 triangles; converted to FBX; replaced unlit scan material with diffuse PBR. Used only on the shallow ledge.
+
+Coast Rocks 02
+By Rob Tuytel (photography/processing), Rico Cilliers (cleanup)
+https://polyhaven.com/a/coast_rocks_02
+Licence: CC0-1.0
+https://creativecommons.org/publicdomain/zero/1.0/
+Changes: Normalised; decimated to 22000 triangles; converted to FBX; PBR channels repacked for Unity Standard. 1K source maps.
+
+Barramundi Fish
+By Microsoft
+https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/BarramundiFish
+Licence: CC0-1.0
+https://creativecommons.org/publicdomain/zero/1.0/
+Changes: Added four-bone swim rig and loop; converted to FBX; PBR maps repacked for Unity. Used only in sunlight zone.
+
+Objaverse: A Universe of Annotated 3D Objects, Deitke et al. (2022). Public model copies: https://huggingface.co/datasets/allenai/objaverse . Dataset ODC-By 1.0; individual model licences listed separately.
+
+Powered by Poly Haven
+https://polyhaven.com
+
+Squid With Procedural Texturing
+By Joachim Bornemann
+https://www.blendkit.com/asset-gallery-detail/a1f3d3fa-c3d6-43d6-a450-c3b9bcec8937/
+Licence: CC0 1.0
+https://creativecommons.org/publicdomain/zero/1.0/
+Changes: Reduced mesh; baked procedural skin, normal and smoothness maps; ordinary deform-bone export; authored swim cycle and mantle-first travel. Provisional 24 cm scale. Illustrative prey candidate, not an identified species from the recordings.
+
+Shark, eel-like fish and red prawn: original project assets; anatomy remains an approximation from the footage.
+
+Generalized lanternfish (Diaphus-type): original project mesh, textures and swim animation.
+Provisional exhibit size 6-8 cm. Species and photophore arrangement are unconfirmed.
+Anatomy references: Australian Museum headlight lanternfish; Fishes of Australia Diaphus danae; Martin, Carr and Sparks (2024), doi:10.1371/journal.pone.0310976.
+No reference photograph pixels are included in the textures. Illustrative prey candidate; the filmed shark's exact diet is unconfirmed.
+
+Coral Reef Decor Pack (URP version)
+By Jesse Mario
+Unity Asset Store (purchased)
+Licence: Unity Asset Store End User License Agreement (Standard Unity Asset Store EULA)
+https://unity.com/legal/as-terms
+Changes: URP version used. Corals, kelp, sea fans, tube sponges, sea pens, rocks, pebbles, shells and starfish painted onto the seabed terrain by depth zone; material smoothness lowered for underwater lighting. Licensed for use in this project only; the source files must not be redistributed.
+
+Soft Coral Set
+By Kanna-Nakajima
+https://sketchfab.com/3d-models/soft-coral-set-256355f15fcb4095af17b75ae572bff0
+Licence: CC-BY-4.0
+http://creativecommons.org/licenses/by/4.0/
+This work is based on "Soft Coral Set" (https://sketchfab.com/3d-models/soft-coral-set-256355f15fcb4095af17b75ae572bff0) by Kanna-Nakajima (https://sketchfab.com/Kanna-nakajima) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+
+Liberation Sans font (TextMesh Pro essential resources)
+Licence: SIL Open Font License 1.1 (full text in Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt)
+https://openfontlicense.org

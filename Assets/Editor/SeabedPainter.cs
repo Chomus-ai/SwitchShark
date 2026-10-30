@@ -78,7 +78,7 @@ public static class SeabedPainter
         new DetailRule { prefab = "027",   zones = new[] { Zone.Shelf, Zone.Slope, Zone.Deep }, density = 1, scale = new Vector2(0.3f, 0.5f), patchiness = 0.7f, seed = 15 },
     };
 
-    const int DetailResolution = 256;
+    const float PlayArea = 120f * 120f; // rule counts are per play area; scaled to the terrain's size
     static readonly Vector2 StartPatch = new Vector2(60f, 17.7f);
 
     [MenuItem("SwitchShark/Paint Seabed (Coral Reef pack)")]
@@ -93,6 +93,8 @@ public static class SeabedPainter
         Terrain terrain = Object.FindAnyObjectByType<Terrain>();
         TerrainData data = terrain.terrainData;
         Undo.RegisterCompleteObjectUndo(data, "Paint seabed");
+        float areaScale = data.size.x * data.size.z / PlayArea;
+        int detailResolution = Mathf.ClosestPowerOfTwo(Mathf.RoundToInt(data.size.x / 0.47f)); // ~0.47 m detail cells
 
         // --- Tree prototypes: keep the original corals for hand painting, add the pack pieces ---
         var treeProtos = data.treePrototypes.Where(p => p.prefab != null && !p.prefab.name.StartsWith("SM_Seabed_")).ToList();
@@ -112,8 +114,8 @@ public static class SeabedPainter
         var rng = new System.Random(77);
         foreach (Rule rule in Trees)
         {
-            int placed = 0;
-            for (int attempt = 0; attempt < rule.count * 60 && placed < rule.count; attempt++)
+            int placed = 0, wanted = Mathf.RoundToInt(rule.count * areaScale);
+            for (int attempt = 0; attempt < wanted * 60 && placed < wanted; attempt++)
             {
                 float u = (float)rng.NextDouble(), v = (float)rng.NextDouble();
                 if (!Allowed(data, terrain, u, v, rule.zones, rule.maxSlope, out float y)) continue;
@@ -157,19 +159,19 @@ public static class SeabedPainter
             });
         }
         data.detailPrototypes = detailProtos.ToArray();
-        data.SetDetailResolution(DetailResolution, 16);
+        data.SetDetailResolution(detailResolution, 16);
 
         int detailCount = 0;
         for (int layer = 0; layer < detailProtos.Count; layer++)
         {
-            var map = new int[DetailResolution, DetailResolution];
+            var map = new int[detailResolution, detailResolution];
             if (layer >= keptDetails)
             {
                 DetailRule d = Details[layer - keptDetails];
-                for (int z = 0; z < DetailResolution; z++)
-                for (int x = 0; x < DetailResolution; x++)
+                for (int z = 0; z < detailResolution; z++)
+                for (int x = 0; x < detailResolution; x++)
                 {
-                    float u = (x + 0.5f) / DetailResolution, v = (z + 0.5f) / DetailResolution;
+                    float u = (x + 0.5f) / detailResolution, v = (z + 0.5f) / detailResolution;
                     if (!Allowed(data, terrain, u, v, d.zones, 40f, out _)) continue;
                     float patch = Clump(u, v, d.seed);
                     if (patch < d.patchiness * 0.6f) continue;
@@ -181,8 +183,8 @@ public static class SeabedPainter
         }
 
         terrain.detailObjectDistance = 70f;
-        terrain.treeDistance = 200f;
-        terrain.treeBillboardDistance = 200f; // no billboards: these prefabs are meshes with LODs
+        terrain.treeDistance = 110f;          // the fog hides everything further away
+        terrain.treeBillboardDistance = 110f; // no billboards: these prefabs are meshes with LODs
         EditorUtility.SetDirty(terrain);
         EditorUtility.SetDirty(data);
         EditorSceneManager.MarkSceneDirty(terrain.gameObject.scene);

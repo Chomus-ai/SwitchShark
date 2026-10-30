@@ -9,7 +9,8 @@ using UnityEngine;
 public class DepthHud : MonoBehaviour
 {
     [SerializeField] private Transform shark;
-    [SerializeField] private Terrain terrain;
+    [Tooltip("World X/Z area the minimap shows (the play area).")]
+    [SerializeField] private Rect mapArea = new Rect(0f, 0f, 120f, 120f);
 
     [Header("Minimap")]
     [SerializeField] private RectTransform map;
@@ -31,12 +32,10 @@ public class DepthHud : MonoBehaviour
         if (shark == null) return;
         Vector3 p = shark.position;
 
-        if (map != null && sharkMarker != null && terrain != null)
+        if (map != null && sharkMarker != null)
         {
-            Vector3 origin = terrain.transform.position;
-            Vector3 size = terrain.terrainData.size;
-            float u = Mathf.Clamp01((p.x - origin.x) / size.x);
-            float v = Mathf.Clamp01((p.z - origin.z) / size.z);
+            float u = Mathf.Clamp01((p.x - mapArea.x) / mapArea.width);
+            float v = Mathf.Clamp01((p.z - mapArea.y) / mapArea.height);
             sharkMarker.anchoredPosition = new Vector2((u - 0.5f) * map.rect.width, (v - 0.5f) * map.rect.height);
             sharkMarker.localEulerAngles = new Vector3(0f, 0f, -shark.eulerAngles.y);
         }

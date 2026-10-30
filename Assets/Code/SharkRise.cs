@@ -211,7 +211,7 @@ public class SharkRise : MonoBehaviour
         Vector3 direction = HorizontalForward() * Mathf.Cos(pitchRad) + Vector3.up * Mathf.Sin(pitchRad);
 
         Vector3 p = transform.position + direction * CurrentSpeed * dt;
-        p.y = Mathf.Max(seabedY, p.y); // never below the seabed
+        p.y = Mathf.Clamp(p.y, seabedY, OceanZones.SurfaceY - 0.2f); // never below the seabed or out of the water
         transform.position = p;
 
         UpdateVisual(smoothedTurn);

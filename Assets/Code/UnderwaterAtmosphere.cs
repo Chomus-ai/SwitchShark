@@ -22,7 +22,7 @@ public class UnderwaterAtmosphere : MonoBehaviour
         public Color ambient;
         [Tooltip("Multiplier on the sun / caustic lights.")]
         [Range(0f, 1f)] public float sunlight;
-        [Tooltip("Brightness of the 360 reef photo behind everything.")]
+        [Tooltip("Brightness of the 360 reef photo behind everything. 0 = hidden: distant water fades into the water colour, as in real water.")]
         [Range(0f, 1f)] public float backdrop;
         [Tooltip("Marine snow particles per second.")]
         public float marineSnow;
@@ -35,18 +35,18 @@ public class UnderwaterAtmosphere : MonoBehaviour
 
     [SerializeField] private ZoneLook sunlightZone = new ZoneLook
     {
-        name = "Sunlight", waterColor = new Color(0.10f, 0.42f, 0.50f), fogDensity = 0.035f,
-        ambient = new Color(0.36f, 0.52f, 0.56f), sunlight = 1f, backdrop = 0.9f, marineSnow = 8f, reflections = 0.3f,
+        name = "Sunlight", waterColor = new Color(0.12f, 0.46f, 0.54f), fogDensity = 0.03f,
+        ambient = new Color(0.46f, 0.62f, 0.66f), sunlight = 1f, backdrop = 0f, marineSnow = 8f, reflections = 0.3f,
     };
     [SerializeField] private ZoneLook twilightZone = new ZoneLook
     {
-        name = "Twilight", waterColor = new Color(0.02f, 0.10f, 0.22f), fogDensity = 0.055f,
-        ambient = new Color(0.07f, 0.13f, 0.22f), sunlight = 0.25f, backdrop = 0.2f, marineSnow = 30f, reflections = 0.08f,
+        name = "Twilight", waterColor = new Color(0.04f, 0.16f, 0.32f), fogDensity = 0.04f,
+        ambient = new Color(0.24f, 0.32f, 0.44f), sunlight = 0.4f, backdrop = 0f, marineSnow = 30f, reflections = 0.08f,
     };
     [SerializeField] private ZoneLook midnightZone = new ZoneLook
     {
-        name = "Midnight", waterColor = new Color(0.004f, 0.012f, 0.03f), fogDensity = 0.07f,
-        ambient = new Color(0.03f, 0.04f, 0.06f), sunlight = 0f, backdrop = 0f, marineSnow = 70f, reflections = 0f,
+        name = "Midnight", waterColor = new Color(0.012f, 0.03f, 0.07f), fogDensity = 0.045f,
+        ambient = new Color(0.15f, 0.19f, 0.27f), sunlight = 0f, backdrop = 0f, marineSnow = 70f, reflections = 0f,
     };
 
     [Header("Scene objects (all optional)")]
@@ -56,10 +56,11 @@ public class UnderwaterAtmosphere : MonoBehaviour
     [SerializeField] private Renderer backdrop;
     [Tooltip("Soft light that follows the camera so the deep is not pitch black.")]
     [SerializeField] private Light viewerLight;
-    [SerializeField] private float viewerLightDeep = 2.5f;
+    [SerializeField] private float viewerLightDeep = 9f;
     [SerializeField] private ParticleSystem marineSnow;
 
     private float[] baseIntensity;
+    private Camera viewerCamera;
     private MaterialPropertyBlock block;
     private static readonly int BaseColorFactor = Shader.PropertyToID("baseColorFactor");
 
@@ -69,6 +70,9 @@ public class UnderwaterAtmosphere : MonoBehaviour
     private void Start()
     {
         if (viewer == null && Camera.main != null) viewer = Camera.main.transform;
+        if (viewer != null) viewerCamera = viewer.GetComponent<Camera>();
+        // Behind everything is open water, never the default sky.
+        if (viewerCamera != null) viewerCamera.clearFlags = CameraClearFlags.SolidColor;
 
         baseIntensity = new float[sunLights != null ? sunLights.Length : 0];
         for (int i = 0; i < baseIntensity.Length; i++)
@@ -88,6 +92,7 @@ public class UnderwaterAtmosphere : MonoBehaviour
         Current = look;
 
         RenderSettings.fogColor = look.waterColor;
+        if (viewerCamera != null) viewerCamera.backgroundColor = look.waterColor;
         RenderSettings.fogDensity = look.fogDensity;
         RenderSettings.ambientLight = look.ambient;
         RenderSettings.reflectionIntensity = look.reflections;
@@ -97,6 +102,9 @@ public class UnderwaterAtmosphere : MonoBehaviour
 
         if (backdrop != null)
         {
+            // The reef photo only makes sense in clear shallow water; deeper, it would show as a band at the horizon.
+            backdrop.enabled = look.backdrop > 0.02f;
+            if (block == null) block = new MaterialPropertyBlock();
             backdrop.GetPropertyBlock(block);
             block.SetColor(BaseColorFactor, Color.Lerp(look.waterColor, Color.white, look.backdrop));
             backdrop.SetPropertyBlock(block);

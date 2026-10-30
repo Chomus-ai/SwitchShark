@@ -23,9 +23,11 @@ using UnityEngine;
 public static class OceanFloorBuilder
 {
     // ---------- Layout (metres, world space) ----------
-    const float Size = 120f;          // terrain covers X and Z from 0 to Size
+    const float Size = 120f;          // play area: X and Z from 0 to Size (SharkBoundary)
+    const float Margin = 60f;         // extra seabed around the play area, so its edges fade into the fog
+    const float TerrainSize = Size + 2f * Margin;
     const float WaterDepth = 18f;     // seabed (deepest) at Y = 0, surface at Y = WaterDepth
-    const int Resolution = 513;       // heightmap samples per side (~0.23 m apart)
+    const int Resolution = 1025;      // heightmap samples per side (~0.23 m apart)
 
     const float DeepFloorY = 0.4f;
     const float SlopeStartZ = 45f;
@@ -82,7 +84,7 @@ public static class OceanFloorBuilder
 
         terrain.terrainData = data;
         terrain.materialTemplate = TerrainMaterial();
-        terrain.transform.position = Vector3.zero;
+        terrain.transform.position = new Vector3(-Margin, 0f, -Margin);
         var collider = terrain.GetComponent<TerrainCollider>();
         if (collider != null) collider.terrainData = data;
         EditorUtility.SetDirty(terrain);
@@ -95,7 +97,7 @@ public static class OceanFloorBuilder
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
 
-        Debug.Log($"OceanFloorBuilder: done. Map {Size} x {Size} m, depth {WaterDepth} m, " +
+        Debug.Log($"OceanFloorBuilder: done. Play area {Size} x {Size} m inside {TerrainSize} x {TerrainSize} m of seabed, depth {WaterDepth} m, " +
                   $"terrain heights {MinHeight(data):0.0}..{MaxHeight(data):0.0} m.");
     }
 
@@ -116,14 +118,14 @@ public static class OceanFloorBuilder
         }
 
         data.heightmapResolution = Resolution;
-        data.size = new Vector3(Size, WaterDepth, Size);
+        data.size = new Vector3(TerrainSize, WaterDepth, TerrainSize);
 
         var heights = new float[Resolution, Resolution];
         for (int iz = 0; iz < Resolution; iz++)
         for (int ix = 0; ix < Resolution; ix++)
         {
-            float x = ix / (Resolution - 1f) * Size;
-            float z = iz / (Resolution - 1f) * Size;
+            float x = -Margin + ix / (Resolution - 1f) * TerrainSize;
+            float z = -Margin + iz / (Resolution - 1f) * TerrainSize;
             heights[iz, ix] = Mathf.Clamp01(Height(x, z) / WaterDepth);
         }
         data.SetHeights(0, 0, heights);
@@ -173,8 +175,8 @@ public static class OceanFloorBuilder
         float ripplePhase = (x * 0.35f + z * 0.94f) * (2f * Mathf.PI / 1.3f) + Mathf.PerlinNoise(x * 0.06f, z * 0.06f) * 6f;
         y += Mathf.Sin(ripplePhase) * 0.06f * shelf * (1f - reef);
 
-        // Rocky walls on the open sides of the basin, so the edges don't look cut off.
-        float edge = Mathf.Min(x, Size - x, z);
+        // Rocky walls at the outer edges of the terrain (well outside the play area, in the fog).
+        float edge = Mathf.Min(x + Margin, Size + Margin - x, z + Margin);
         float wall = 1f - Smooth(Mathf.InverseLerp(0f, 14f, edge));
         y += wall * (4f + Fbm(x * 0.12f, z * 0.12f + 300f, 3) * 3f) * (1f - shelf * 0.8f);
 
@@ -229,7 +231,7 @@ public static class OceanFloorBuilder
         TerrainLayer silt = MakeLayer("DeepSilt", colour, normal, new Color(0.30f, 0.34f, 0.40f), 6f);
         data.terrainLayers = new[] { sand, rock, silt };
 
-        int res = 512;
+        int res = 1024; // ~0.23 m per texel over the 240 m terrain
         data.alphamapResolution = res;
         var maps = new float[res, res, 3];
         for (int iz = 0; iz < res; iz++)
@@ -283,6 +285,7 @@ public static class OceanFloorBuilder
     {
         if (old == null || old == data) return;
 
+        data.SetTreeInstances(new TreeInstance[0], false); // drop trees painted with other prototypes first
         data.treePrototypes = old.treePrototypes;
         var trees = new List<TreeInstance>();
         if (old.treePrototypes.Length > 0)

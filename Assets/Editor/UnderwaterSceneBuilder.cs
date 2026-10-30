@@ -22,6 +22,7 @@ public static class UnderwaterSceneBuilder
     const string WaterFolder = "Assets/Environment/Water";
     const string SeabedFolder = "Assets/Environment/Seabed";
     const int TerrainLayer = 3;
+    const float PlaySize = 120f; // play area X/Z 0..120 (SharkBoundary); the terrain extends beyond it
 
     [MenuItem("SwitchShark/Build Underwater Scene")]
     public static void BuildMenu()
@@ -44,6 +45,7 @@ public static class UnderwaterSceneBuilder
         int props = DressSeabed(terrain);
         int jellies = AddJellyfish(terrain);
         BuildHud(terrain, shark);
+        BuildSwimEffects(shark, cam);
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
@@ -69,7 +71,7 @@ public static class UnderwaterSceneBuilder
         lightGo.transform.SetParent(cam.transform, false);
         var light = lightGo.AddComponent<Light>();
         light.type = LightType.Point;
-        light.range = 14f;
+        light.range = 20f;
         light.color = new Color(0.55f, 0.75f, 1f);
         light.shadows = LightShadows.None;
 
@@ -140,6 +142,121 @@ public static class UnderwaterSceneBuilder
         var renderer = go.GetComponent<ParticleSystemRenderer>();
         renderer.sharedMaterial = MarineSnowMaterial();
         return ps;
+    }
+
+    // ---------------------------------------------------------------------
+    // Shark swim effects: silt, glowing tail wake, water push, eat burst
+    // ---------------------------------------------------------------------
+
+    static void BuildSwimEffects(Transform shark, Camera cam)
+    {
+        Material dust = ParticleMaterial("SwimDust", additive: false);
+        Material glow = ParticleMaterial("SwimGlow", additive: true);
+
+        var effects = shark.GetComponent<SharkSwimEffects>();
+        if (effects == null) effects = shark.gameObject.AddComponent<SharkSwimEffects>();
+        var so = new SerializedObject(effects);
+        so.FindProperty("shark").objectReferenceValue = shark.GetComponent<SharkRise>();
+        so.FindProperty("tail").objectReferenceValue = shark.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "spine_11");
+        so.FindProperty("dustMaterial").objectReferenceValue = dust;
+        so.FindProperty("glowMaterial").objectReferenceValue = glow;
+        Transform snow = cam.transform.Find("Marine Snow");
+        so.FindProperty("marineSnow").objectReferenceValue = snow != null ? snow.GetComponent<ParticleSystem>() : null;
+        so.ApplyModifiedProperties();
+
+        var eater = shark.GetComponent<SharkEater>();
+        if (eater != null)
+        {
+            var e = new SerializedObject(eater);
+            e.FindProperty("eatEffectPrefab").objectReferenceValue = EatBurstPrefab(dust, glow);
+            e.ApplyModifiedProperties();
+        }
+    }
+
+    static Material ParticleMaterial(string name, bool additive)
+    {
+        string path = $"{WaterFolder}/{name}.mat";
+        var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+        if (m == null)
+        {
+            m = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
+            AssetDatabase.CreateAsset(m, path);
+        }
+        m.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Creatures/HDSharkAssets/soft_dot.png"));
+        m.SetColor("_BaseColor", Color.white);
+        MakeTransparent(m, additive);
+        if (additive) m.EnableKeyword("_BLENDMODE_ADD"); else m.DisableKeyword("_BLENDMODE_ADD");
+        EditorUtility.SetDirty(m);
+        return m;
+    }
+
+    /// <summary>Burst of glinting scales and a little cloud where a fish is eaten.</summary>
+    static GameObject EatBurstPrefab(Material dust, Material glow)
+    {
+        string path = $"{WaterFolder}/EatBurst.prefab";
+        var go = new GameObject("EatBurst");
+        try
+        {
+            var scales = go.AddComponent<ParticleSystem>();
+            ConfigureBurst(scales, glow, 40, new Vector2(0.015f, 0.04f), new Vector2(0.3f, 1.3f), new Vector2(0.8f, 1.8f),
+                           new Color(0.9f, 0.95f, 1f, 0.9f), grow: 0.6f);
+
+            var cloudGo = new GameObject("Cloud");
+            cloudGo.transform.SetParent(go.transform, false);
+            var cloud = cloudGo.AddComponent<ParticleSystem>();
+            ConfigureBurst(cloud, dust, 10, new Vector2(0.15f, 0.35f), new Vector2(0.05f, 0.3f), new Vector2(1.5f, 2.5f),
+                           new Color(0.75f, 0.78f, 0.75f, 0.25f), grow: 2.5f);
+
+            return PrefabUtility.SaveAsPrefabAsset(go, path);
+        }
+        finally { Object.DestroyImmediate(go); }
+    }
+
+    static void ConfigureBurst(ParticleSystem ps, Material material, int count, Vector2 size, Vector2 speed, Vector2 life, Color color, float grow)
+    {
+        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        var main = ps.main;
+        main.duration = 0.5f;
+        main.loop = false;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(life.x, life.y);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(speed.x, speed.y);
+        main.startSize = new ParticleSystem.MinMaxCurve(size.x, size.y);
+        main.startColor = color;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = 0.01f;
+
+        var emission = ps.emission;
+        emission.rateOverTime = 0f;
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)count) });
+
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 0.1f;
+
+        var drag = ps.limitVelocityOverLifetime;
+        drag.enabled = true;
+        drag.limit = 0f;
+        drag.dampen = 0.08f;
+
+        var sizeOverLife = ps.sizeOverLifetime;
+        sizeOverLife.enabled = true;
+        sizeOverLife.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, 1f, 1f, grow));
+
+        var fade = ps.colorOverLifetime;
+        fade.enabled = true;
+        var gradient = new Gradient();
+        gradient.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                         new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0.7f, 0.5f), new GradientAlphaKey(0f, 1f) });
+        fade.color = gradient;
+
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.3f;
+        noise.frequency = 0.6f;
+
+        var renderer = ps.GetComponent<ParticleSystemRenderer>();
+        renderer.sharedMaterial = material;
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
     }
 
     static Material MarineSnowMaterial()
@@ -277,7 +394,8 @@ public static class UnderwaterSceneBuilder
     {
         TerrainData data = terrain.terrainData;
         Vector3 origin = terrain.transform.position;
-        var startPatch = new Vector2(60f, 16f);
+        var startPatch = new Vector2(60f, 17.7f);
+        wanted = Mathf.RoundToInt(wanted * data.size.x * data.size.z / (PlaySize * PlaySize)); // same density on a bigger terrain
         int placed = 0;
         for (int attempt = 0; attempt < wanted * 40 && placed < wanted; attempt++)
         {
@@ -344,7 +462,7 @@ public static class UnderwaterSceneBuilder
         int placed = 0;
         for (int attempt = 0; attempt < 200 && placed < 16; attempt++)
         {
-            var p = new Vector3(Range(rng, 10f, size.x - 10f), Range(rng, 7f, 16f), Range(rng, 10f, size.z - 10f));
+            var p = new Vector3(Range(rng, 10f, PlaySize - 10f), Range(rng, 7f, 16f), Range(rng, 10f, PlaySize - 10f));
             if (p.y < terrain.SampleHeight(p) + 3f) continue;
             var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, root.transform);
             go.transform.position = p;
@@ -419,7 +537,7 @@ public static class UnderwaterSceneBuilder
         var hud = canvasGo.AddComponent<DepthHud>();
         var so = new SerializedObject(hud);
         so.FindProperty("shark").objectReferenceValue = shark;
-        so.FindProperty("terrain").objectReferenceValue = terrain;
+        so.FindProperty("mapArea").rectValue = new Rect(0f, 0f, PlaySize, PlaySize);
         so.FindProperty("map").objectReferenceValue = mapRect;
         so.FindProperty("sharkMarker").objectReferenceValue = marker;
         so.FindProperty("gauge").objectReferenceValue = gauge;
@@ -513,7 +631,7 @@ public static class UnderwaterSceneBuilder
         return t;
     }
 
-    /// <summary>Seabed map coloured by zone, with hill shading and 2 m contour lines.</summary>
+    /// <summary>Map of the play area's seabed coloured by zone, with hill shading and 2 m contour lines.</summary>
     static Texture2D MiniMapTexture(Terrain terrain)
     {
         const int n = 256;
@@ -523,7 +641,8 @@ public static class UnderwaterSceneBuilder
         for (int y = 0; y < n; y++)
         for (int x = 0; x < n; x++)
         {
-            float u = x / (n - 1f), v = y / (n - 1f);
+            float u = (x / (n - 1f) * PlaySize - terrain.transform.position.x) / data.size.x;
+            float v = (y / (n - 1f) * PlaySize - terrain.transform.position.z) / data.size.z;
             float h = data.GetInterpolatedHeight(u, v) + terrain.transform.position.y;
             Color c = h >= 12f ? Color.Lerp(new Color(0.42f, 0.72f, 0.70f), new Color(0.78f, 0.86f, 0.70f), Mathf.InverseLerp(12f, 17f, h))
                     : h >= 6f ? Color.Lerp(new Color(0.08f, 0.24f, 0.45f), new Color(0.2f, 0.5f, 0.62f), Mathf.InverseLerp(6f, 12f, h))

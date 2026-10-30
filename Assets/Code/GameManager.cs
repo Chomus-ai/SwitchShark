@@ -9,7 +9,8 @@ public enum GameState { Intro, Rise, Surface }
 /// Drives the game loop: Intro -> Rise -> Surface -> Intro.
 ///
 /// The manager is passive: it reads values and decides WHEN to change state.
-///   Rise    : shark height >= maxHeight - arriveTolerance
+///   Rise    : shark height >= maxHeight - arriveTolerance (only if 'End Run At Surface' is on;
+///             otherwise the surface just fires SurfaceReached and the Rise continues)
 ///   Surface : short timer (the "you made it" moment), then back to Intro
 ///
 /// What happens on each change (cameras, UI, enabling controllers) is wired up
@@ -29,7 +30,10 @@ public class GameManager : MonoBehaviour
     [Tooltip("The shark approaches its target height smoothly, so count it as arrived when this close.")]
     [SerializeField] private float arriveTolerance = 0.25f;
 
-    [Header("Surface segment")]
+    [Header("Surface")]
+    [Tooltip("ON: reaching the surface ends the run (Surface segment, then back to the Intro and the start position). " +
+             "OFF: the surface is just the top of the water; the player keeps swimming and nothing resets.")]
+    [SerializeField] private bool endRunAtSurface = false;
     [Tooltip("Seconds spent on the arrival moment before returning to the Intro.")]
     [SerializeField] private float surfaceDuration = 8f;
 
@@ -41,6 +45,9 @@ public class GameManager : MonoBehaviour
     [Header("Development")]
     [Tooltip("Keyboard fallback for starting the game from the Intro screen.")]
     [SerializeField] private Key debugStartKey = Key.Space;
+
+    /// <summary>Fired when the shark reaches the surface (once per visit; it must dive a little before it fires again).</summary>
+    public event Action SurfaceReached;
 
     /// <summary>Fired after every state change: (previous, new).</summary>
     public event Action<GameState, GameState> StateChanged;
@@ -58,6 +65,7 @@ public class GameManager : MonoBehaviour
     private float CurrentHeight => shark.position.y;
 
     private float surfaceTimer;
+    private bool atSurface;
 
     private void Awake()
     {
@@ -85,7 +93,18 @@ public class GameManager : MonoBehaviour
 
             case GameState.Rise:
                 if (CurrentHeight >= maxHeight - arriveTolerance)
-                    ChangeState(GameState.Surface);
+                {
+                    if (!atSurface)
+                    {
+                        atSurface = true;
+                        SurfaceReached?.Invoke();
+                        if (endRunAtSurface) ChangeState(GameState.Surface);
+                    }
+                }
+                else if (CurrentHeight < maxHeight - 1.5f)
+                {
+                    atSurface = false;
+                }
                 break;
 
             case GameState.Surface:
@@ -136,6 +155,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.Rise:
+                atSurface = false;
                 onEnterRise?.Invoke();
                 break;
 
