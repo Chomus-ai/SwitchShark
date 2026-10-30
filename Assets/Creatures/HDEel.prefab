@@ -103,8 +103,8 @@ MonoBehaviour:
   climbAngleRange: {x: 0, y: 12}
   pitchWobble: 2
   wobbleFrequency: 0.4
-  ceilingY: 125
-  ceilingFade: 5
+  ceilingY: 18
+  ceilingFade: 1.5
   avoidTerrain: 1
   terrainClearance: 0.5
 --- !u!136 &3587353445351152054

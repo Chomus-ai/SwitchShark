@@ -30,6 +30,10 @@ public class STerrainGuard : MonoBehaviour
     [Header("Size")]
     [Tooltip("Radius of the sphere used to represent the body in the sweep.")]
     [SerializeField] private float radius = 0.6f;
+    [Tooltip("Half the body length along its forward axis. 0 = the body is a sphere (fine for small fish). " +
+             "For a long body like the shark, use about half its length so the nose and tail can't enter " +
+             "the terrain. Needs the object's pivot at the middle of the body.")]
+    [SerializeField] private float bodyHalfLength = 0f;
     [Tooltip("Gap kept between the mob and a surface it stops against.")]
     [SerializeField] private float skin = 0.05f;
 
@@ -194,8 +198,7 @@ public class STerrainGuard : MonoBehaviour
 
             Vector3 direction = remaining / distance;
 
-            if (!Physics.SphereCast(pos, radius, direction, out RaycastHit hit,
-                                    distance + skin, terrainMask, QueryTriggerInteraction.Ignore))
+            if (!BodyCast(pos, direction, distance + skin, out RaycastHit hit))
             {
                 return pos + remaining; // clear path
             }
@@ -212,18 +215,37 @@ public class STerrainGuard : MonoBehaviour
         return pos;
     }
 
+    /// <summary>Sweeps the body (a sphere, or a capsule from tail to nose) along a direction.</summary>
+    private bool BodyCast(Vector3 pos, Vector3 direction, float distance, out RaycastHit hit)
+    {
+        if (bodyHalfLength <= 0f)
+            return Physics.SphereCast(pos, radius, direction, out hit, distance, terrainMask, QueryTriggerInteraction.Ignore);
+
+        Vector3 half = transform.forward * bodyHalfLength;
+        return Physics.CapsuleCast(pos + half, pos - half, radius, direction, out hit, distance,
+                                   terrainMask, QueryTriggerInteraction.Ignore);
+    }
+
     private Vector3 KeepAboveGround(Vector3 pos)
     {
-        Vector3 origin = pos + Vector3.up * groundProbeHeight;
-        float rayLength = groundProbeHeight + groundProbeDepth;
-
-        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, rayLength,
-                            terrainMask, QueryTriggerInteraction.Ignore))
+        // Check under the middle of the body, and under the nose and tail for long bodies.
+        float lift = 0f;
+        int samples = bodyHalfLength > 0f ? 3 : 1;
+        for (int i = 0; i < samples; i++)
         {
-            float minY = hit.point.y + groundClearance;
-            if (pos.y < minY) pos.y = minY;
+            Vector3 point = samples == 1 ? pos : pos + transform.forward * (bodyHalfLength * (i - 1));
+            Vector3 origin = point + Vector3.up * groundProbeHeight;
+            float rayLength = groundProbeHeight + groundProbeDepth;
+
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, rayLength,
+                                terrainMask, QueryTriggerInteraction.Ignore))
+            {
+                float clearance = i == 1 || samples == 1 ? groundClearance : radius; // nose / tail only need to stay out
+                lift = Mathf.Max(lift, hit.point.y + clearance - point.y);
+            }
         }
 
+        pos.y += lift;
         return pos;
     }
 
@@ -231,6 +253,11 @@ public class STerrainGuard : MonoBehaviour
     {
         Gizmos.color = new Color(0.2f, 1f, 0.4f, 0.8f);
         Gizmos.DrawWireSphere(transform.position, radius);
+        if (bodyHalfLength > 0f)
+        {
+            Gizmos.DrawWireSphere(transform.position + transform.forward * bodyHalfLength, radius);
+            Gizmos.DrawWireSphere(transform.position - transform.forward * bodyHalfLength, radius);
+        }
 
         // Avoidance probes
         Vector3 forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up);

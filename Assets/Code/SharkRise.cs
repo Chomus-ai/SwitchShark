@@ -57,7 +57,7 @@ public class SharkRise : MonoBehaviour
     [SerializeField] private bool resetPoseOnIntro = true;
 
     /// <summary>Current swimming speed (forward speed plus any boost). Handy for animation and effects.</summary>
-    public float CurrentSpeed { get; private set; }
+    public float CurrentSpeed { get; internal set; } // internal: TempMouseSwimControls drives it while active
 
     /// <summary>1 right after a boost press, fading to 0. Handy for camera FOV kicks or particles.</summary>
     public float BoostFraction => boostDuration > 0f ? Mathf.Clamp01(boostRemaining / boostDuration) : 0f;

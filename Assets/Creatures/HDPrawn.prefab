@@ -98,8 +98,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleFishSwim
   speed: 4
-  weaveTurnRate: 0
+  weaveAmplitude: 8
   weaveFrequency: 0
+  climbAngleRange: {x: 0, y: 12}
+  pitchWobble: 2
+  wobbleFrequency: 0.4
+  ceilingY: 18
+  ceilingFade: 1.5
+  avoidTerrain: 1
+  terrainClearance: 0.5
 --- !u!136 &-3508203121687929772
 CapsuleCollider:
   m_ObjectHideFlags: 0

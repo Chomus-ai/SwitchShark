@@ -1,0 +1,213 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4562254505973150881
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1083509698878938195}
+  - component: {fileID: 2544298516979365626}
+  - component: {fileID: 5806527460602665738}
+  - component: {fileID: 5836884423859640265}
+  m_Layer: 0
+  m_Name: ExhibitSquid
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1083509698878938195
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4562254505973150881}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6300857689444221378}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2544298516979365626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4562254505973150881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19ca4ee1c4b1d984ca028c02bca6a952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SharkTerrainGuard
+  terrainMask:
+    serializedVersion: 2
+    m_Bits: 8
+  radius: 0.05
+  skin: 0.05
+  groundClearance: 0.3
+  groundProbeHeight: 20
+  groundProbeDepth: 20
+  enableAvoidance: 1
+  lookAhead: 4
+  probeAngle: 35
+  avoidTurnRate: 45
+  avoidSmoothing: 5
+  rotateShark: 1
+  gameManager: {fileID: 0}
+--- !u!114 &5806527460602665738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4562254505973150881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8216de98550a9b0408bbddb48ca0104f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleFishSwim
+  speed: 2
+  weaveAmplitude: 1
+  weaveFrequency: 1
+  climbAngleRange: {x: 0, y: 12}
+  pitchWobble: 2
+  wobbleFrequency: 0.4
+  ceilingY: 18
+  ceilingFade: 1.5
+  avoidTerrain: 1
+  terrainClearance: 0.5
+--- !u!136 &5836884423859640265
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4562254505973150881}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.037565842
+  m_Height: 0.24132693
+  m_Direction: 2
+  m_Center: {x: 0.00006324053, y: 0.0028609112, z: -0.00006585568}
+--- !u!1001 &5835431267878954537
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1083509698878938195}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -6364050111626244159, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -4432278467783367546, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_Name
+      value: ExhibitSquid Visual
+      objectReference: {fileID: 0}
+    - target: {fileID: 2032557857812127302, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3378849498335337827}
+  m_SourcePrefab: {fileID: 100100000, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+--- !u!4 &6300857689444221378 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+  m_PrefabInstance: {fileID: 5835431267878954537}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6645892498108242808 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 4ecc4c1cec9773d4097271605b8431e5, type: 3}
+  m_PrefabInstance: {fileID: 5835431267878954537}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &3378849498335337827
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6645892498108242808}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 8d82992d6c1033a489131d38d57abc30, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

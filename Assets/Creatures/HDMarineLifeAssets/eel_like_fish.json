@@ -1,0 +1,45 @@
+{
+  "asset": "eel_like_fish",
+  "display_name": "Eel-like fish",
+  "length_metres": 0.65,
+  "scale_status": "placeholder; no calibrated measurement",
+  "species_status": "unconfirmed",
+  "reference": [
+    {
+      "file": "Solo251012_165605.mp4",
+      "seconds": 40
+    },
+    {
+      "file": "Solo251012_165105.mp4",
+      "seconds": 20
+    }
+  ],
+  "observations": [
+    "Long plum/brown body, rounded snout, small paired fins and tapered tail visible in lander footage.",
+    "Body thickness, fin membrane details and unseen underside are authored approximations."
+  ],
+  "animations": [
+    {
+      "name": "Glide",
+      "seconds": 3.0,
+      "loop": true
+    },
+    {
+      "name": "Swim",
+      "seconds": 1.8,
+      "loop": true
+    },
+    {
+      "name": "TurnLeft",
+      "seconds": 1.8,
+      "loop": true
+    },
+    {
+      "name": "TurnRight",
+      "seconds": 1.8,
+      "loop": true
+    }
+  ],
+  "bones": 21,
+  "triangles": 11524
+}

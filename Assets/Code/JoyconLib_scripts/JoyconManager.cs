@@ -17,7 +17,7 @@ public class JoyconManager: MonoBehaviour
 	private const ushort product_l = 0x2006;
 	private const ushort product_r = 0x2007;
 
-    public List<Joycon> j; // Array of all connected Joy-Cons
+    [System.NonSerialized] public List<Joycon> j; // Array of all connected Joy-Cons (filled at runtime)
     static JoyconManager instance;
 
     public static JoyconManager Instance

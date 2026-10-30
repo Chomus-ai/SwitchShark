@@ -1,0 +1,205 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9010118939909452555
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8521250148102318513}
+  - component: {fileID: 2468135772809628126}
+  - component: {fileID: 9141681369187882979}
+  - component: {fileID: 7063096496582083376}
+  m_Layer: 0
+  m_Name: Barramundi
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8521250148102318513
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010118939909452555}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8199707615054220892}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2468135772809628126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010118939909452555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19ca4ee1c4b1d984ca028c02bca6a952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SharkTerrainGuard
+  terrainMask:
+    serializedVersion: 2
+    m_Bits: 8
+  radius: 0.2235281
+  skin: 0.05
+  groundClearance: 0.3
+  groundProbeHeight: 20
+  groundProbeDepth: 20
+  enableAvoidance: 1
+  lookAhead: 4
+  probeAngle: 35
+  avoidTurnRate: 45
+  avoidSmoothing: 5
+  rotateShark: 1
+  gameManager: {fileID: 0}
+--- !u!114 &9141681369187882979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010118939909452555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8216de98550a9b0408bbddb48ca0104f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleFishSwim
+  speed: 2.5
+  weaveAmplitude: 1
+  weaveFrequency: 1
+  climbAngleRange: {x: 0, y: 12}
+  pitchWobble: 2
+  wobbleFrequency: 0.4
+  ceilingY: 18
+  ceilingFade: 1.5
+  avoidTerrain: 1
+  terrainClearance: 0.5
+--- !u!136 &7063096496582083376
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010118939909452555}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.2235281
+  m_Height: 1.004405
+  m_Direction: 2
+  m_Center: {x: 0.0020640045, y: 0.22352807, z: -0.0022023916}
+--- !u!1001 &8199707615054220890
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8521250148102318513}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -474331442503906293, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      propertyPath: m_Name
+      value: Barramundi Visual
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7300784025562803823}
+  m_SourcePrefab: {fileID: 100100000, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+--- !u!1 &8199707615054220891 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+  m_PrefabInstance: {fileID: 8199707615054220890}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &7300784025562803823
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8199707615054220891}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 7406ceeb7de735b429397b3fc6a92b9e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &8199707615054220892 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c4f7b0051c91fde4a95e0e0e69722230, type: 3}
+  m_PrefabInstance: {fileID: 8199707615054220890}
+  m_PrefabAsset: {fileID: 0}
