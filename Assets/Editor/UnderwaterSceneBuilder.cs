@@ -93,7 +93,20 @@ public static class UnderwaterSceneBuilder
         so.FindProperty("backdrop").objectReferenceValue = sky != null ? sky.GetComponentInChildren<Renderer>() : null;
         so.FindProperty("viewerLight").objectReferenceValue = light;
         so.FindProperty("marineSnow").objectReferenceValue = snow;
+        so.FindProperty("sky").objectReferenceValue = SkyMaterial();
         so.ApplyModifiedProperties();
+    }
+
+    static Material SkyMaterial()
+    {
+        string path = $"{WaterFolder}/UnderwaterSky.mat";
+        var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+        if (m == null)
+        {
+            m = new Material(Shader.Find("SwitchShark/Underwater Sky"));
+            AssetDatabase.CreateAsset(m, path);
+        }
+        return m;
     }
 
     static ParticleSystem MakeMarineSnow(Transform parent)
@@ -297,7 +310,7 @@ public static class UnderwaterSceneBuilder
             m = new Material(Shader.Find("Universal Render Pipeline/Lit"));
             AssetDatabase.CreateAsset(m, path);
         }
-        m.SetColor("_BaseColor", new Color(0.62f, 0.86f, 0.9f, 0.55f));
+        m.SetColor("_BaseColor", new Color(0.62f, 0.86f, 0.9f, 0.25f)); // see-through, so the sky window shows
         m.SetFloat("_Smoothness", 0.95f);
         m.SetTexture("_BumpMap", ripples);
         m.SetTextureScale("_BumpMap", new Vector2(24f, 24f));
@@ -307,7 +320,7 @@ public static class UnderwaterSceneBuilder
         m.SetTextureScale("_DetailNormalMap", new Vector2(57f, 57f));
         m.SetFloat("_DetailNormalMapScale", 0.6f);
         m.EnableKeyword("_DETAIL_MULX2");
-        m.SetColor("_EmissionColor", new Color(0.22f, 0.42f, 0.46f)); // skylight coming through
+        m.SetColor("_EmissionColor", new Color(0.1f, 0.2f, 0.22f)); // skylight coming through
         m.EnableKeyword("_EMISSION");
         m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
         MakeTransparent(m, additive: false);

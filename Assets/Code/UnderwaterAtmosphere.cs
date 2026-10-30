@@ -58,11 +58,22 @@ public class UnderwaterAtmosphere : MonoBehaviour
     [SerializeField] private Light viewerLight;
     [SerializeField] private float viewerLightDeep = 9f;
     [SerializeField] private ParticleSystem marineSnow;
+    [Tooltip("Underwater background (SwitchShark/Underwater Sky). Its horizon is kept equal to the fog colour.")]
+    [SerializeField] private Material sky;
+    [Tooltip("Colour of the glow toward the surface at full sunlight.")]
+    [SerializeField] private Color surfaceGlow = new Color(0.55f, 0.85f, 0.9f);
 
     private float[] baseIntensity;
+    private Material skyInstance;
     private Camera viewerCamera;
     private MaterialPropertyBlock block;
     private static readonly int BaseColorFactor = Shader.PropertyToID("baseColorFactor");
+    private static readonly int HorizonColor = Shader.PropertyToID("_HorizonColor");
+    private static readonly int TopColor = Shader.PropertyToID("_TopColor");
+    private static readonly int BottomColor = Shader.PropertyToID("_BottomColor");
+    private static readonly int SunIntensity = Shader.PropertyToID("_SunIntensity");
+    private static readonly int SunDirection = Shader.PropertyToID("_SunDirection");
+    private static readonly int WindowStrength = Shader.PropertyToID("_WindowStrength");
 
     /// <summary>The blended look at the viewer's current depth.</summary>
     public ZoneLook Current { get; private set; }
@@ -72,7 +83,12 @@ public class UnderwaterAtmosphere : MonoBehaviour
         if (viewer == null && Camera.main != null) viewer = Camera.main.transform;
         if (viewer != null) viewerCamera = viewer.GetComponent<Camera>();
         // Behind everything is open water, never the default sky.
-        if (viewerCamera != null) viewerCamera.clearFlags = CameraClearFlags.SolidColor;
+        if (sky != null)
+        {
+            skyInstance = new Material(sky); // so play mode doesn't change the asset
+            RenderSettings.skybox = skyInstance;
+        }
+        if (viewerCamera != null) viewerCamera.clearFlags = skyInstance != null ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
 
         baseIntensity = new float[sunLights != null ? sunLights.Length : 0];
         for (int i = 0; i < baseIntensity.Length; i++)
@@ -110,6 +126,17 @@ public class UnderwaterAtmosphere : MonoBehaviour
             backdrop.SetPropertyBlock(block);
         }
 
+        if (skyInstance != null)
+        {
+            skyInstance.SetColor(HorizonColor, look.waterColor);
+            skyInstance.SetColor(TopColor, Color.Lerp(look.waterColor * 1.6f, surfaceGlow, look.sunlight));
+            skyInstance.SetColor(BottomColor, look.waterColor * 0.3f);
+            skyInstance.SetFloat(SunIntensity, 0.7f * look.sunlight);
+            skyInstance.SetFloat(WindowStrength, look.sunlight * look.sunlight); // the sky window fades out with depth
+            if (sunLights != null && sunLights.Length > 0 && sunLights[0] != null)
+                skyInstance.SetVector(SunDirection, -sunLights[0].transform.forward);
+        }
+
         if (viewerLight != null)
             viewerLight.intensity = viewerLightDeep * (1f - look.sunlight);
 
@@ -118,6 +145,11 @@ public class UnderwaterAtmosphere : MonoBehaviour
             ParticleSystem.EmissionModule emission = marineSnow.emission;
             emission.rateOverTime = look.marineSnow;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (skyInstance != null) Destroy(skyInstance);
     }
 
     /// <summary>Blends the three zone looks; each zone's look is exact at the middle of its third.</summary>
