@@ -74,7 +74,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   radius: 0.6
-  bodyHalfLength: 0
   skin: 0.05
   groundClearance: 0.5
   groundProbeHeight: 20
@@ -101,7 +100,7 @@ MonoBehaviour:
   speed: 4
   weaveAmplitude: 8
   weaveFrequency: 0
-  climbAngleRange: {x: 0, y: 12}
+  climbAngleRange: {x: 0, y: 80}
   pitchWobble: 2
   wobbleFrequency: 0.4
   ceilingY: 18
