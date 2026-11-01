@@ -12,7 +12,7 @@ public static class OceanZones
     public enum Zone { Sunlight, Twilight, Midnight }
 
     public const float SeabedY = 0f;
-    public const float SurfaceY = 18f;
+    public const float SurfaceY = 125f;
 
     // Real-ocean depth at the zone boundaries (top of each zone, then the seabed).
     static readonly float[] OceanDepthAtBoundary = { 0f, 200f, 1000f, 1800f };
