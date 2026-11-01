@@ -38,6 +38,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private UnityEvent onEnterRise;
     [SerializeField] private UnityEvent onEnterSurface;
 
+    [Header("Cutscenes (optional - leave empty to skip)")]
+    [Tooltip("Plays when the player starts from the Intro. The game stays in Intro until it ends (or is skipped), then enters Rise.")]
+    [SerializeField] private Cutscene openingCutscene;
+    [Tooltip("Plays when the shark reaches the surface. The Surface timer only starts counting down once it has finished.")]
+    [SerializeField] private Cutscene endingCutscene;
+
     [Header("Development")]
     [Tooltip("Keyboard fallback for starting the game from the Intro screen.")]
     [SerializeField] private Key debugStartKey = Key.Space;
@@ -57,7 +63,11 @@ public class GameManager : MonoBehaviour
     // so there is only ever one source of truth for the shark's height.
     private float CurrentHeight => shark.position.y;
 
+    /// <summary>True while the opening or ending cutscene is playing.</summary>
+    public bool IsCutscenePlaying => openingActive || (endingCutscene != null && endingCutscene.IsPlaying);
+
     private float surfaceTimer;
+    private bool openingActive;
 
     private void Awake()
     {
@@ -89,6 +99,9 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.Surface:
+                // Hold the Surface timer until the ending cutscene has finished.
+                if (endingCutscene != null && endingCutscene.IsPlaying) break;
+
                 surfaceTimer = Mathf.Max(0f, surfaceTimer - Time.deltaTime);
                 if (surfaceTimer <= 0f)
                     ChangeState(GameState.Intro);
@@ -101,6 +114,33 @@ public class GameManager : MonoBehaviour
     /// <summary>Called when the player presses the start button on the Intro screen.</summary>
     public void RequestStart()
     {
+        if (CurrentState != GameState.Intro) return;
+
+        // No opening cutscene assigned: start straight away, as before.
+        if (openingCutscene == null)
+        {
+            ChangeState(GameState.Rise);
+            return;
+        }
+
+        if (!openingActive)
+        {
+            // First squeeze: play the opening. We stay in Intro until it finishes.
+            openingActive = true;
+            openingCutscene.Play(OnOpeningFinished);
+        }
+        else
+        {
+            // Squeezed again while it plays: skip (ignored during the cutscene's skip lock-out).
+            openingCutscene.Skip();
+        }
+    }
+
+    private void OnOpeningFinished()
+    {
+        if (!openingActive) return;
+        openingActive = false;
+
         if (CurrentState == GameState.Intro)
             ChangeState(GameState.Rise);
     }
@@ -109,7 +149,15 @@ public class GameManager : MonoBehaviour
     public void ResetToIntro()
     {
         if (CurrentState != GameState.Intro)
+        {
             ChangeState(GameState.Intro);
+        }
+        else if (openingActive)
+        {
+            // Abort an opening cutscene that is still playing.
+            openingActive = false;
+            openingCutscene.Stop();
+        }
     }
 
     // ---------- Internals ----------
@@ -132,6 +180,10 @@ public class GameManager : MonoBehaviour
         switch (state)
         {
             case GameState.Intro:
+                // Leaving the Surface (or a reset): make sure no cutscene is left running.
+                openingActive = false;
+                if (openingCutscene != null) openingCutscene.Stop();
+                if (endingCutscene != null) endingCutscene.Stop();
                 onEnterIntro?.Invoke();
                 break;
 
@@ -142,6 +194,7 @@ public class GameManager : MonoBehaviour
             case GameState.Surface:
                 surfaceTimer = surfaceDuration;
                 onEnterSurface?.Invoke();
+                if (endingCutscene != null) endingCutscene.Play();
                 break;
         }
     }
