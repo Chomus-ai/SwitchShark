@@ -3,7 +3,27 @@ guid: 1738a570cb9e54d47973d2c2c4d4e37d
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PrawnEye
+    second: {fileID: 2100000, guid: dfd9d336a507c2843a8f98435f1eb1ca, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PrawnJoint
+    second: {fileID: 2100000, guid: 0dfd3056b02bc9c4885e1fd369e16f29, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PrawnLimb
+    second: {fileID: 2100000, guid: f758844a927196347b93c2a7c2c5135f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PrawnShell
+    second: {fileID: 2100000, guid: 250ac3db7e820054485be36d62a8f316, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

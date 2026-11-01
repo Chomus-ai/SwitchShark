@@ -3,7 +3,32 @@ guid: 96007a14f42aead449345bb2f250c661
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EelEye
+    second: {fileID: 2100000, guid: 5ae6ff262ec61184fa9435e0a5d9595b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EelFin
+    second: {fileID: 2100000, guid: ea4c37762c9612d46a9242bb77a73d5c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EelIris
+    second: {fileID: 2100000, guid: 22e37cf8f208e3744a8535ff9d29ba4d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EelMouth
+    second: {fileID: 2100000, guid: 3d00a80993dcba34abe3b0f3cb71c8e0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EelSkin
+    second: {fileID: 2100000, guid: f9a08be358541d443b2e651d94e080b5, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

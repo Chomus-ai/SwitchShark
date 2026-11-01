@@ -1,0 +1,46 @@
+{
+  "asset": "deep_sea_prawn",
+  "display_name": "Red deep-sea prawn",
+  "length_metres": 0.16,
+  "scale_status": "placeholder; no calibrated measurement",
+  "species_status": "unconfirmed",
+  "reference": [
+    {
+      "file": "Solo251012_173605.mp4",
+      "seconds": 40
+    },
+    {
+      "file": "Solo251012_173605.mp4",
+      "seconds": 60
+    }
+  ],
+  "observations": [
+    "Red-orange segmented abdomen, carapace, stalked eyes, thin legs and long antennae visible beneath the bait.",
+    "Continuous tapered abdomen beneath six overlapping cuticle plates, finer jointed appendages and cupped uropods replace the former bead geometry.",
+    "Occluded appendages and underside are authored approximations; shell transparency is approximated by an opaque game material."
+  ],
+  "animations": [
+    {
+      "name": "Feed",
+      "seconds": 2.4,
+      "loop": true
+    },
+    {
+      "name": "Idle",
+      "seconds": 3.0,
+      "loop": true
+    },
+    {
+      "name": "Swim",
+      "seconds": 1.6,
+      "loop": true
+    },
+    {
+      "name": "TailFlip",
+      "seconds": 1.0,
+      "loop": false
+    }
+  ],
+  "bones": 32,
+  "triangles": 30860
+}

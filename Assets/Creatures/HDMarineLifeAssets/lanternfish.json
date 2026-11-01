@@ -1,0 +1,27 @@
+{
+  "asset": "lanternfish",
+  "display_name": "Generalized lanternfish (Diaphus-type)",
+  "authorship": "Original project mesh and textures",
+  "species_status": "unconfirmed; generalized exhibit illustration",
+  "length_metres": 0.08,
+  "scale_status": "provisional exhibit size",
+  "bones": 11,
+  "triangles": 20470,
+  "animations": [
+    {
+      "name": "Swim",
+      "seconds": 1.6,
+      "loop": true
+    }
+  ],
+  "references": [
+    "https://australian.museum/learn/animals/fishes/headlight-lanternfish-diaphus-sp/",
+    "https://fishesofaustralia.net.au/home/species/1433",
+    "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310976"
+  ],
+  "notes": [
+    "Reference anatomy studied; no external photographs copied into textures.",
+    "Photophore layout, fin shapes, body width and swim timing are authored approximations, not a species diagnosis.",
+    "Reflective flanks use an artistic metallic/smoothness approximation to fish iridophores."
+  ]
+}

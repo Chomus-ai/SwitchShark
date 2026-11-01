@@ -3,7 +3,32 @@ guid: c094004daec173c45af3b09811f58631
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SharkBody
+    second: {fileID: 2100000, guid: b1ee92d25563b2c47842396275b28825, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SharkEye
+    second: {fileID: 2100000, guid: 7d73ba3c3b5bc4947b2645d4fac350f3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SharkFin
+    second: {fileID: 2100000, guid: 1d0d980702b542a4b844e5835a37c79a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SharkMouth
+    second: {fileID: 2100000, guid: b6d0ca18eba6e764eb0026fd6e0c4cd0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SharkSpine
+    second: {fileID: 2100000, guid: decc7acc795d8314d8dd59dafb0aaada, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
