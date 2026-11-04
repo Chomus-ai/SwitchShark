@@ -6822,6 +6822,10 @@ PrefabInstance:
       propertyPath: m_MaterialTemplate
       value: 
       objectReference: {fileID: 2100000, guid: dd20fa83572b6454b9dfb9fd916c927a, type: 2}
+    - target: {fileID: 6070814928974391979, guid: 3dacddc9a6668b741b83d01857177cda, type: 3}
+      propertyPath: m_EnableHeightmapRayTracing
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6663856634069843070, guid: 3dacddc9a6668b741b83d01857177cda, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
