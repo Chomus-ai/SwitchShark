@@ -542,7 +542,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StateManager
   shark: {fileID: 682837841}
   minHeight: 0
-  maxHeight: 10
+  maxHeight: 50
   arriveTolerance: 0.25
   surfaceDuration: 3
   onEnterTitle:
