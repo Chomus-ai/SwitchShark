@@ -136,6 +136,7 @@ public class SharkRise : MonoBehaviour
 
         switch (gameManager.CurrentState)
         {
+            case GameState.Title:
             case GameState.Intro:
                 // GameManager already handles the keyboard start key.
                 if (JoyconReady && joycon.ActionPressedThisFrame)

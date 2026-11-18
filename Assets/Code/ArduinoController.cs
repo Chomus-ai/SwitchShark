@@ -21,6 +21,13 @@ using UnityEngine;
 ///      on macOS, first COM port on Windows).
 ///   Leave Port Name empty to always auto-detect.
 ///
+/// Session restart on connect:
+///   Opening the port resets an Arduino Uno on some systems (DTR toggles) and not on
+///   others. To get the same result everywhere, the sketch prints "# BOOT" when it
+///   starts. If no "# BOOT" arrives within RestartCheckDelaySeconds of opening the
+///   port, this script sends 'R' so the Arduino re-calibrates its IMU and re-inflates
+///   / re-settles the airbag, exactly as if it had just been reset.
+///
 /// Testable in isolation: put this on an empty GameObject, tick Debug Display
 /// and press Play. No other script is needed.
 ///
@@ -40,10 +47,24 @@ public class ArduinoController : MonoBehaviour
     [Tooltip("Must match Serial.begin() in the Arduino sketch (115200).")]
     [SerializeField] private int baudRate = 115200;
 
+    [Header("Session restart")]
+    [Tooltip("After opening the port, wait this long for the Arduino's '# BOOT' message. " +
+             "If it doesn't arrive (the board didn't reset), send 'R' to restart the session. " +
+             "Must be longer than the bootloader delay (~2 s on an Uno).")]
+    [SerializeField] private float restartCheckDelaySeconds = 3f;
+    [Tooltip("Turn off to never send the automatic restart command.")]
+    [SerializeField] private bool restartOnConnect = true;
+
     [Header("Debug")]
     [SerializeField] private bool debugDisplay = false;
     [Tooltip("Log the '#' status messages the Arduino prints (calibration done, ready to squeeze, ...).")]
     [SerializeField] private bool logArduinoMessages = true;
+
+    [Header("Per-player calibration")]
+    [Tooltip("Drag the GameManager here. Each time the game enters Intro (a new player has just squeezed), " +
+         "the Arduino re-measures its neutral pose.")]
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private bool recalibrateOnIntro = true;
 
     // ---- Latest values (refreshed once per frame in Update) ----
     /// <summary>Angles in degrees relative to the Arduino's neutral pose.</summary>
@@ -78,6 +99,16 @@ public class ArduinoController : MonoBehaviour
     // Copied on the main thread so the reader thread never touches serialized fields mid-edit.
     private string configuredPort;
     private int configuredBaud;
+    private float configuredRestartDelay;
+    private bool configuredRestartOnConnect;
+
+    // Restart-on-connect state (reader thread only, except the volatile flag).
+    private volatile bool sawBootMarker;
+    private bool restartCheckPending;
+    private long openedTicks;
+
+    // The reader thread and the main thread can both write to the port.
+    private readonly object writeLock = new object();
 
     // ------------------------------------------------------------------
     // Port selection
@@ -128,14 +159,18 @@ public class ArduinoController : MonoBehaviour
     {
         configuredPort = portName;
         configuredBaud = baudRate;
+        configuredRestartDelay = Mathf.Max(0.5f, restartCheckDelaySeconds);
+        configuredRestartOnConnect = restartOnConnect;
 
         running = true;
+        if (gameManager != null) gameManager.StateChanged += HandleGameStateChanged;
         readThread = new Thread(ReadLoop) { IsBackground = true, Name = "ArduinoController serial reader" };
         readThread.Start();
     }
 
     private void OnDisable()
     {
+        if (gameManager != null) gameManager.StateChanged -= HandleGameStateChanged;
         running = false;
         if (readThread != null)
         {
@@ -152,6 +187,12 @@ public class ArduinoController : MonoBehaviour
         SafeClose();
     }
 
+    private void HandleGameStateChanged(GameState previous, GameState next)
+    {
+        if (recalibrateOnIntro && next == GameState.Intro)
+            RequestCalibration();   // sends 'C' to the Arduino
+    }
+
     // ------------------------------------------------------------------
     // Background thread
     // ------------------------------------------------------------------
@@ -166,6 +207,21 @@ public class ArduinoController : MonoBehaviour
                     // Wait ~2 s before retrying, but wake up quickly if we're shutting down.
                     for (int i = 0; i < 20 && running; i++) Thread.Sleep(100);
                     continue;
+                }
+            }
+
+            // Restart-on-connect: if the board did not reboot by itself when the port
+            // opened, ask it to restart its session. (ReadLine times out every 100 ms,
+            // so this check runs often enough.)
+            if (restartCheckPending &&
+                (System.Diagnostics.Stopwatch.GetTimestamp() - openedTicks) >=
+                    configuredRestartDelay * System.Diagnostics.Stopwatch.Frequency)
+            {
+                restartCheckPending = false;
+                if (!sawBootMarker)
+                {
+                    Debug.Log("[ArduinoController] Board did not reboot on connect - sending restart command.");
+                    SendCommand("R");
                 }
             }
 
@@ -207,8 +263,14 @@ public class ArduinoController : MonoBehaviour
             };
             port.Open();
             port.DiscardInBuffer();
+
+            sawBootMarker = false;
+            restartCheckPending = configuredRestartOnConnect;
+            openedTicks = System.Diagnostics.Stopwatch.GetTimestamp();
+
             Debug.Log("[ArduinoController] Opened " + name + " @ " + configuredBaud +
-                      " (opening the port resets an Uno - expect ~2 s before data flows)");
+                      " (the board may reset on open; if not, a restart command is sent after " +
+                      configuredRestartDelay.ToString("0.#", CultureInfo.InvariantCulture) + " s)");
             return true;
         }
         catch (Exception e)
@@ -233,6 +295,9 @@ public class ArduinoController : MonoBehaviour
 
         if (line[0] == '#')
         {
+            // The sketch prints this once on every (re)boot.
+            if (line.StartsWith("# BOOT", StringComparison.Ordinal)) sawBootMarker = true;
+
             if (logArduinoMessages) Debug.Log("[Arduino] " + line);
             return;
         }
@@ -309,23 +374,43 @@ public class ArduinoController : MonoBehaviour
         if (ActionUp) OnActionUp?.Invoke();
     }
 
+    // ------------------------------------------------------------------
+    // Commands to the Arduino
+    // ------------------------------------------------------------------
+
     /// <summary>
-    /// Asks the Arduino to re-measure its absolute neutral pose (takes ~30 IMU samples;
-    /// ImuReady is false meanwhile). You normally DON'T need this: ArduinoInputProvider.CalibrateTilt()
-    /// already re-zeroes instantly on the Unity side. Use it only to recover from heavy drift.
+    /// Thread-safe write of a single-character command. Called from both the reader
+    /// thread (automatic restart) and the main thread (public methods below).
     /// </summary>
-    public void RequestCalibration()
+    private void SendCommand(string cmd)
     {
         SerialPort p = port;
         try
         {
-            if (p != null && p.IsOpen) p.Write("C");
+            lock (writeLock)
+            {
+                if (p != null && p.IsOpen) p.Write(cmd);
+            }
         }
         catch (Exception e)
         {
-            Debug.LogWarning("[ArduinoController] Could not send calibration request: " + e.Message);
+            Debug.LogWarning("[ArduinoController] Could not send '" + cmd + "': " + e.Message);
         }
     }
+
+    /// <summary>
+    /// Asks the Arduino to re-measure its absolute neutral pose (takes ~50 IMU samples;
+    /// ImuReady is false meanwhile). You normally DON'T need this: ArduinoInputProvider.CalibrateTilt()
+    /// already re-zeroes instantly on the Unity side. Use it only to recover from heavy drift.
+    /// </summary>
+    public void RequestCalibration() => SendCommand("C");
+
+    /// <summary>
+    /// Restarts the Arduino session: re-calibrates the IMU AND re-inflates / re-settles the
+    /// airbag. The controller must be held still for ~1-2 s afterwards. Sent automatically
+    /// on connect when the board did not reboot by itself.
+    /// </summary>
+    public void RequestRestart() => SendCommand("R");
 
     private void OnGUI()
     {

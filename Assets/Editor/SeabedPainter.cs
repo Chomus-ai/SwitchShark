@@ -22,7 +22,7 @@ using UnityEngine;
 public static class SeabedPainter
 {
     const string Pack = "Assets/Coral Reef Decor Pack/Coral Reef Decor Pack - URP/Assets/Prefabs/SM_Seabed_";
-    const float ShelfY = 12f, DeepY = 4f;
+    const float ShelfY = 50f, DeepY = 0f;
 
     enum Zone { Deep, Slope, Shelf }
 
@@ -47,8 +47,8 @@ public static class SeabedPainter
         new Rule { prefabs = new[] { "001", "007" }, zones = new[] { Zone.Shelf }, count = 70, scale = new Vector2(0.7f, 1.3f), cluster = 0.6f, clusterSeed = 1 },
         new Rule { prefabs = new[] { "023_a", "023_b" }, zones = new[] { Zone.Shelf }, count = 120, scale = new Vector2(0.5f, 0.85f), cluster = 0.8f, clusterSeed = 2 }, // kelp is 2.5 m tall: keep it under the surface
         // Twilight slope: sea fans and sponges on the rocky slope.
-        new Rule { prefabs = new[] { "012", "013", "014", "015", "016_a", "016_b" }, zones = new[] { Zone.Slope }, count = 170, scale = new Vector2(0.8f, 1.8f), maxSlope = 45f, cluster = 0.4f, clusterSeed = 3 },
-        new Rule { prefabs = new[] { "017_a", "017_b" }, zones = new[] { Zone.Slope, Zone.Shelf }, count = 70, scale = new Vector2(0.7f, 1.4f), maxSlope = 40f, cluster = 0.5f, clusterSeed = 4 },
+        new Rule { prefabs = new[] { "012", "013", "014", "015", "016_a", "016_b" }, zones = new[] { Zone.Slope }, count = 170, scale = new Vector2(0.8f, 1.8f), maxSlope = 65f, cluster = 0.4f, clusterSeed = 3 },
+        new Rule { prefabs = new[] { "017_a", "017_b" }, zones = new[] { Zone.Slope, Zone.Shelf }, count = 70, scale = new Vector2(0.7f, 1.4f), maxSlope = 70f, cluster = 0.5f, clusterSeed = 4 },
         new Rule { prefabs = new[] { "018_a", "018_b" }, zones = new[] { Zone.Slope, Zone.Deep }, count = 90, scale = new Vector2(0.7f, 1.3f), cluster = 0.6f, clusterSeed = 5 },
         // Midnight floor: sparse cold-water corals.
         new Rule { prefabs = new[] { "030", "006" }, zones = new[] { Zone.Deep }, count = 60, scale = new Vector2(0.8f, 1.6f), cluster = 0.5f, clusterSeed = 6 },
