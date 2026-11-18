@@ -53,8 +53,8 @@ public class SharkRise : MonoBehaviour
     [SerializeField] private float visualSmoothing = 6f;
 
     [Header("Pose")]
-    [Tooltip("Snap back to the starting position and rotation when returning to the Intro.")]
-    [SerializeField] private bool resetPoseOnIntro = true;
+    [Tooltip("Snap back to the starting position and rotation when returning to the Title")]
+    [SerializeField] private bool resetPoseOnTitle = true;
 
     /// <summary>Current swimming speed (forward speed plus any boost). Handy for animation and effects.</summary>
     public float CurrentSpeed { get; private set; }
@@ -118,7 +118,7 @@ public class SharkRise : MonoBehaviour
             if (joycon != null) joycon.CalibrateTilt();
         }
 
-        if (next == GameState.Intro && resetPoseOnIntro)
+        if (next == GameState.Title && resetPoseOnTitle)
         {
             transform.SetPositionAndRotation(startPosition, startRotation);
             smoothedTurn = 0f;
@@ -136,6 +136,7 @@ public class SharkRise : MonoBehaviour
 
         switch (gameManager.CurrentState)
         {
+            case GameState.Title:
             case GameState.Intro:
                 // GameManager already handles the keyboard start key.
                 if (JoyconReady && joycon.ActionPressedThisFrame)
